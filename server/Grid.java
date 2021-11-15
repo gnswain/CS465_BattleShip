@@ -1,5 +1,7 @@
 package server;
 
+import java.awt.Point;
+
 //import 
 
 /**
@@ -38,31 +40,138 @@ public class Grid {
                 board[i][j] = " ";
             }
         }
-    }
+    } // end Grid
 
     /**
-     * Returns a String representation of the Grid
+     * Returns a String representation of the Grid showing full details
      * @return String representation of the Grid
      */
-    @Override
-    public String toString() {
+    public String getFullGrid() {
         String rtn = "  ";
+        String divider = "  "; // Used to divide the rows
         // Creates the row indices
         for (int i = 0; i < this.board.length; i++) {
             rtn += "  " + i + " ";
+            divider += "+---";
         }
         rtn += "\n";
 
+        // Creates the rest of the board
         for (int i = 0; i < this.board.length; i++) {
-            rtn += "  +---+---+---+---+---+---+---+---+---+---+\n" + i + " | ";
+            rtn += divider + "+\n" + i + " | ";
             for (int j = 0; j < this.board[i].length; j++) {
                 rtn += this.board[i][j] + " | "; 
             }            
             rtn += "\n";
         }
-        rtn += "  +---+---+---+---+---+---+---+---+---+---+";
+        rtn += divider + "+";
         return rtn;
-    }
+    } // end getFullGrid
+
+    /**
+     * Returns a String representation of the Grid showing only hits and misses
+     * @return String representation of the Grid
+     */
+    public String getPublicGrid() {
+        String rtn = "  ";
+        String divider = "  "; // Used to divide the rows
+        // Creates the row indices
+        for (int i = 0; i < this.board.length; i++) {
+            rtn += "  " + i + " ";
+            divider += "+---";
+        }
+        rtn += "\n";
+
+        // Creates the rest of the board
+        for (int i = 0; i < this.board.length; i++) {
+            rtn += divider + "+\n" + i + " | ";
+            for (int j = 0; j < this.board[i].length; j++) {
+                if (this.board[i][j].equals(HIT) || this.board[i][j].equals(HIT))
+                    rtn += this.board[i][j] + " | "; 
+                else
+                    rtn += "  | ";
+            } // end inner for    
+            rtn += "\n";
+        } // end out for
+        rtn += divider + "+";
+        return rtn;
+    } // end getPublicGrid
+
+    /**
+     * Attempts to place a ship at a given coordinate in a given direction.
+     * @param ship Ship to be placed.
+     * @param row Row to place ships first piece.
+     * @param col Column to place ships first piece.
+     * @param orientation Orientation of the ship -> 'v' for vertical, 'h' for horizontal.
+     * @param dir Direction of ship -> 1 for up/right, -1 for down/left.
+     * @return True if ship was successfully placed.
+     */
+    public boolean placeShip(ShipType ship, int row, int col, char orientation, int dir) {
+        // check to see if within bounds
+        if (row < 0 || row >= board.length || col < 0 || col >= board.length)
+            return false;
+        
+        if (orientation == 'v')
+            return placeVertical(ship, row, col, dir);
+        else if (orientation == 'h')
+            return placeHorizontal(ship, row, col, dir);
+
+        return false;
+    } // end placeShip
+
+    /**
+     * Attempts to place a ship at a given coordinate in a given direction.
+     * @param ship Ship to be placed.
+     * @param row Row to place ships first piece.
+     * @param col Column to place ships first piece.
+     * @param dir Direction of ship -> 1 for up, -1 for down.
+     * @return True if ship was successfully placed.
+     */
+    public boolean placeVertical(ShipType ship, int row, int col, int dir) {
+        dir *= -1; // switches to -1 for up, which makes more sense for the backend
+        int endRow = row + (ship.getSize() * dir);
+        if (endRow < 0 || endRow > board.length)
+            return false;
+
+        // Checks to see if any other ships are in the path before placing
+        for (int i = 0; i < ship.getSize(); i++) {
+            if (!board[row + (i * dir)][col].equals(" "))
+                return false;
+        }
+        
+        // places ship
+        for (int i = 0; i < ship.getSize(); i++) {
+            board[row + (i * dir)][col] = ship.toString();
+        }
+        return true;
+    } // end placeVertical
+
+    /**
+     * Attempts to place a ship at a given coordinate in a given direction.
+     * @param ship Ship to be placed.
+     * @param row Row to place ships first piece.
+     * @param col Column to place ships first piece.
+     * @param dir Direction of ship -> 1 for right, -1 for left.
+     * @return True if ship was successfully placed.
+     */
+    public boolean placeHorizontal(ShipType ship, int row, int col, int dir) {
+        int endCol = col + (ship.getSize() * dir);
+        if (endCol < 0 || endCol > board.length)
+            return false;
+
+        // Checks to see if any other ships are in the path before placing
+        for (int i = 0; i < ship.getSize(); i++) {
+            if (!board[row][col + (i * dir)].equals(" "))
+                return false;
+        }
+
+        // places ship
+        for (int i = 0; i < ship.getSize(); i++) {
+            board[row][col + (i * dir)] = ship.toString();
+        }
+        return true;
+    } // end placeHorizontal
+
 
     /**
      * Used for testing data input.
@@ -70,9 +179,15 @@ public class Grid {
      * @param args Not used. 
      */
     public static void main(String[] args) {
-        Grid grid = new Grid(10);
+        Grid grid = new Grid(8);
 
-        System.out.println(grid.toString());
+        System.out.println("Full Grid: \n" + grid.getFullGrid());
+        System.out.println("Public Grid: \n" + grid.getPublicGrid());
 
+        System.out.println(grid.placeShip(ShipType.DESTROYER, 0, 0, 'v', -1));
+        System.out.println(grid.placeHorizontal(ShipType.CRUISER, 5, 7, -1));
+
+        System.out.println("Full Grid: \n" + grid.getFullGrid());
+        System.out.println("Public Grid: \n" + grid.getPublicGrid());
     }//end main
 }//end class Grid
