@@ -1,7 +1,5 @@
 package server;
 
-import javax.sound.midi.MidiChannel;
-
 /**
  * @author Brandon Welch
  * @author Graham Swain
