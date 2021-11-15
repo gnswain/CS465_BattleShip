@@ -82,7 +82,7 @@ public class Grid {
         for (int i = 0; i < this.board.length; i++) {
             rtn += divider + "+\n" + i + " | ";
             for (int j = 0; j < this.board[i].length; j++) {
-                if (this.board[i][j].equals(HIT) || this.board[i][j].equals(HIT))
+                if (this.board[i][j].equals(MISS) || this.board[i][j].equals(HIT))
                     rtn += this.board[i][j] + " | "; 
                 else
                     rtn += "  | ";
@@ -229,7 +229,7 @@ public class Grid {
         System.out.println("Ships left (1): " + grid.shipsLeft());
 
         System.out.println(grid.placeShip(ShipType.DESTROYER, 4, 2, 'v', 1));
-        // System.out.println(grid.placeShip(ShipType.CRUISER, 5, 0, 'h', 1));
+        System.out.println(grid.placeShip(ShipType.CRUISER, 5, 0, 'h', 1));
 
         System.out.println("Full Grid: \n" + grid.getFullGrid());
 
@@ -237,6 +237,10 @@ public class Grid {
         System.out.println("Shot hit: " + grid.shot(0, 2));
         System.out.println("Shot hit: " + grid.shot(1, 2));
         System.out.println("Shot hit: " + grid.shot(2, 2));
+        
+        System.out.println("Shot hit: " + grid.shot(2, 5));
+        System.out.println("Full Grid: \n" + grid.getFullGrid());
+        System.out.println("Public Grid: \n" + grid.getPublicGrid());
         System.out.println("Shot hit: " + grid.shot(3, 2));
         System.out.println("Shot hit: " + grid.shot(4, 2));
 
