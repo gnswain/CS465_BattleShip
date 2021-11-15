@@ -127,16 +127,16 @@ public class Grid {
      * @param dir Direction of ship -> 1 for up, -1 for down.
      * @return True if ship was successfully placed.
      */
-    public boolean placeVertical(ShipType ship, int row, int col, int dir) {
-        dir *= -1; // switches to -1 for up, which makes more sense for the backend
-        int endRow = row + (ship.getSize() * dir);
-        if (endRow < 0 || endRow > board.length)
-            return false;
-
-        // Checks to see if any other ships are in the path before placing
-        for (int i = 0; i < ship.getSize(); i++) {
-            if (!board[row + (i * dir)][col].equals(" "))
-                return false;
+    private boolean placeVertical(ShipType ship, int row, int col, int dir) {
+        dir *= -1;
+        try {
+            // Checks to see if any other ships are in the path before placing
+            for (int i = 0; i < ship.getSize(); i++) {
+                if (!board[row  + (i * dir)][col].equals(" "))
+                    return false;
+            }
+        } catch (IndexOutOfBoundsException e) {
+            return false; // ship went over the edge
         }
         
         // places ship
@@ -154,19 +154,20 @@ public class Grid {
      * @param dir Direction of ship -> 1 for right, -1 for left.
      * @return True if ship was successfully placed.
      */
-    public boolean placeHorizontal(ShipType ship, int row, int col, int dir) {
-        int endCol = col + (ship.getSize() * dir);
-        if (endCol < 0 || endCol > board.length)
-            return false;
-
-        // Checks to see if any other ships are in the path before placing
-        for (int i = 0; i < ship.getSize(); i++) {
-            if (!board[row][col + (i * dir)].equals(" "))
-                return false;
+    private boolean placeHorizontal(ShipType ship, int row, int col, int dir) {
+        try {
+            // Checks to see if any other ships are in the path before placing
+            for (int i = 0; i < ship.getSize(); i++) {
+                if (!board[row][col + (i * dir)].equals(" "))
+                    return false;
+            }
+        } catch (IndexOutOfBoundsException e) {
+            return false; // ship went over the edge
         }
-
+        
         // places ship
         for (int i = 0; i < ship.getSize(); i++) {
+            System.out.println("Column: " + (col + (i * dir)));
             board[row][col + (i * dir)] = ship.toString();
         }
         return true;
@@ -182,12 +183,10 @@ public class Grid {
         Grid grid = new Grid(8);
 
         System.out.println("Full Grid: \n" + grid.getFullGrid());
-        System.out.println("Public Grid: \n" + grid.getPublicGrid());
 
-        System.out.println(grid.placeShip(ShipType.DESTROYER, 0, 0, 'v', -1));
-        System.out.println(grid.placeHorizontal(ShipType.CRUISER, 5, 7, -1));
+        System.out.println(grid.placeShip(ShipType.DESTROYER, 4, 2, 'v', 1));
+        System.out.println(grid.placeHorizontal(ShipType.CRUISER, 5, 0, 1));
 
         System.out.println("Full Grid: \n" + grid.getFullGrid());
-        System.out.println("Public Grid: \n" + grid.getPublicGrid());
     }//end main
 }//end class Grid
