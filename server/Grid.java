@@ -1,8 +1,6 @@
 package server;
 
-import java.awt.Point;
-
-//import 
+import javax.sound.midi.MidiChannel;
 
 /**
  * @author Brandon Welch
@@ -173,6 +171,53 @@ public class Grid {
         return true;
     } // end placeHorizontal
 
+    /**
+     * Checks to see if a shot can be made. A shot is invalid if it is off of the board or if that
+     * space has already been guessed;
+     * @param row Row of space being shot.
+     * @param col Column of space being shot.
+     * @return True if shot can be made.
+     */
+    public boolean isValidShot(int row, int col) {
+        if (row < 0 || row >= board.length || col < 0 || col >= board.length) {
+            return false;
+        }
+        if (board[row][col].equals(HIT) || board[row][col].equals(MISS)) {
+            return false;
+        }
+        return true;
+    } // end isValidShot
+
+    /**
+     * Takes a shot at a space. Does not check validity of shot.
+     * @param row Row of space being shot.
+     * @param col Column of space being shot.
+     * @return True if shot hits.
+     */
+    public boolean shot(int row, int col) {
+        if (board[row][col].equals(" ")) {
+            // shot misses
+            board[row][col] = MISS;
+            return false;
+        } else {
+            //shot hits
+            board[row][col] = HIT;
+            return true;
+        }
+    } // ends shot
+
+    /**
+     * Checks to see if there are still ships on the board.
+     * @return True if there is at least one part of one ship left.
+     */
+    public boolean shipsLeft() {
+        for (String[] row : board)
+            for (String space : row)
+                if (!(space.equals(HIT) || space.equals(MISS) || space.equals(" ")))
+                    return true;
+        return false;
+    } // end shipsLeft
+
 
     /**
      * Used for testing data input.
@@ -183,10 +228,21 @@ public class Grid {
         Grid grid = new Grid(8);
 
         System.out.println("Full Grid: \n" + grid.getFullGrid());
+        System.out.println("Ships left (1): " + grid.shipsLeft());
 
         System.out.println(grid.placeShip(ShipType.DESTROYER, 4, 2, 'v', 1));
-        System.out.println(grid.placeHorizontal(ShipType.CRUISER, 5, 0, 1));
+        // System.out.println(grid.placeShip(ShipType.CRUISER, 5, 0, 'h', 1));
 
         System.out.println("Full Grid: \n" + grid.getFullGrid());
+
+        System.out.println("Ships left (2): " + grid.shipsLeft());
+        System.out.println("Shot hit: " + grid.shot(0, 2));
+        System.out.println("Shot hit: " + grid.shot(1, 2));
+        System.out.println("Shot hit: " + grid.shot(2, 2));
+        System.out.println("Shot hit: " + grid.shot(3, 2));
+        System.out.println("Shot hit: " + grid.shot(4, 2));
+
+        System.out.println("Full Grid: \n" + grid.getFullGrid());
+        System.out.println("Ships left (3): " + grid.shipsLeft());
     }//end main
 }//end class Grid
