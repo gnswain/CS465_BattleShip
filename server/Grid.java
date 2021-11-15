@@ -16,26 +16,33 @@ package server;
  */
 public class Grid {
 
-    /** Character representation of a hit */
+    /** Character representation of a hit. */
     public static final String HIT = "X";
-    /** Character representation of a miss */
+    /** Character representation of a miss. */
     public static final String MISS = "O";
     
-    /** The board represented as a 2D array of Strings */
+    /** The board represented as a 2D array of Strings. */
     private String[][] board;
+    /** Player who owns the board. */
+    private String username;
+    /** The size of the board. */
+    private int size;
 
     /**
      * Creates a new board given a size.
      * @param size Size of the board.
      */
-    public Grid(int size) {
+    public Grid(int size, String username) {
         board = new String[size][size];
+        this.size = size;
 
         for (int i = 0; i < board.length; i++) {
             for (int j = 0; j < board[i].length; j++) {
                 board[i][j] = " ";
             }
         }
+
+        this.username = username;
     } // end Grid
 
     /**
@@ -163,7 +170,6 @@ public class Grid {
         
         // places ship
         for (int i = 0; i < ship.getSize(); i++) {
-            System.out.println("Column: " + (col + (i * dir)));
             board[row][col + (i * dir)] = ship.toString();
         }
         return true;
@@ -216,6 +222,20 @@ public class Grid {
         return false;
     } // end shipsLeft
 
+    /**
+     * Gets the owner of the board.
+     * @return Username of the board's owner.
+     */
+    public String getUsername() {
+        return this.username;
+    }
+
+    /**
+     * Gets the size of the board.
+     */
+    public int getSize() {
+        return this.size;
+    }
 
     /**
      * Used for testing data input.
@@ -223,7 +243,7 @@ public class Grid {
      * @param args Not used. 
      */
     public static void main(String[] args) {
-        Grid grid = new Grid(8);
+        Grid grid = new Grid(8, "PlayerOne");
 
         System.out.println("Full Grid: \n" + grid.getFullGrid());
         System.out.println("Ships left (1): " + grid.shipsLeft());
