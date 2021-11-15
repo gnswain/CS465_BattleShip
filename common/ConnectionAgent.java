@@ -1,0 +1,167 @@
+package common;
+
+import java.lang.Runnable;
+import java.util.Scanner;
+import java.io.IOException;
+import java.io.PrintStream;
+import java.net.Socket;
+
+/**
+ * @author Brandon Welch
+ * @author Graham Swain
+ * @version November 12, 2021
+ *
+ * CS465-01, Computer Networks
+ * Dr. Scott Barlowe
+ *
+ * Fall 2021
+ *
+ * Project Three: Battleship(Multiuser game)
+ * 
+ * This class is responsible for sending messages to and receiving messages from remote hosts. 
+ */
+public class ConnectionAgent extends MessageSource implements Runnable {
+    
+    /* The Socket to which the server listens for client connections. */
+    private Socket socket;
+
+    /* The Scanner used to gather input. */
+    private Scanner in;
+
+    /* The Stream used to notify Observers. */
+    private PrintStream out;
+
+    /* The thread. */
+    private Thread thread;
+
+
+    /**
+     * Create a single card for Magic the Gathering.
+     *
+     * @param mana Energy required to use the card.
+     */
+    public ConnectionAgent(Socket socket) {
+        
+        this.socket = socket;
+        this.in = null;
+        this.out = null;
+        this.thread = null;
+
+    }//end constructor
+
+
+    /**
+     * Get the Socket to communicate with clients.
+     *
+     * @return A socket to communicate with clients.
+     */
+    public Socket getSocket() {
+
+        return this.socket;
+    }//end getSocket
+
+
+    /**
+     * Get an input scanner.
+     *
+     * @return An input scanner.
+     */
+    public Scanner getScanner() {
+
+        return this.in;
+    }//end getScanner
+
+
+    /**
+     * Get the PrintStream to notify Observers of changes.
+     *
+     * @return A PrintStream that will notify Observer's.
+     */
+    public PrintStream getPrintStream() {
+
+        return this.out;
+    }//end getPrintStream
+
+
+    /**
+     * Get the Thread.
+     *
+     * @return A thread.
+     */
+    public Thread getThread() {
+
+        return this.thread;
+    }//end getThread
+
+
+    /**
+     * Assign a new thread.
+     *
+     * @param thread New thread to be assigned.
+     */
+    public void setThread(Thread thread) {
+
+        this.thread = thread;
+    }//end setThread
+
+
+    /**
+     * Displays the state of the ConnectionAgent.
+     */
+    @Override
+    public String toString() {
+
+        /* Building the return value. */
+        StringBuilder str = new StringBuilder();
+
+        str.append("Empty connectionAgent tostring");
+
+        return str.toString();
+    }//end toString 
+
+
+    /**
+     * Sends a message.
+     *
+     */
+    public void sendMessage(String message) {
+
+
+    }//end sendMessage
+
+
+    /**
+     * Is connected...
+     *
+     */
+    public boolean isConnected(){
+
+        return this.socket.isConnected();
+    }//end isConnected
+
+
+    /**
+     * Close the socket connection.
+     *
+     */
+    public void close() {
+
+        /* if the socket is not closed then close it. */
+        try {
+            this.socket.close();
+        }//end try
+        catch (IOException ioe) {
+            System.err.println("Unable to close the socket in ConnectionAgent.close()");
+        }//end catch
+    }//end close
+
+
+    /**
+     * Assign work to a thread.
+     *
+     */
+    public void run() {
+
+
+    }//end run 
+}//end class ConnectionAgent
