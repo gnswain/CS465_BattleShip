@@ -1,0 +1,14 @@
+## ignore anything ending in ~ which are generally temp files
+*~
+
+## ignore pictures with .png extension
+*.png
+
+## ignore .pdf file extension
+*.pdf
+
+## ignore temporary vim file extension
+*.swp
+
+## ignore java class files
+*/*.class
