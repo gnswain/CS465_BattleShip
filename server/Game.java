@@ -125,7 +125,7 @@ public class Game {
     public void placeShips() {
         Size size = Size.getSizeByInt(this.playerOne.getSize());
 
-        int total = ThreadLocalRandom.current().nextInt(size.min, size.max);
+        int total = ThreadLocalRandom.current().nextInt(size.min, size.max + 1);
         ShipType[] types = ShipType.values();
 
         int placed = 0;
@@ -167,7 +167,11 @@ public class Game {
      * @param args Not used. 
      */
     public static void main(String[] args) {
-        Game game = new Game("PlayerOne", "PlayerTwo", 5);
+        int size = 10;
+        if (args.length == 1)
+            size = Integer.parseInt(args[0]);
+            
+        Game game = new Game("PlayerOne", "PlayerTwo", size);
 
         while (!game.gameOver) {
             game.turn();

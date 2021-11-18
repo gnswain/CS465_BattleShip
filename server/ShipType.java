@@ -62,7 +62,8 @@ public enum ShipType implements Serializable, Comparable<ShipType> {
      */
     @Override
     public String toString() {
-
+        if (this == CRUISER)
+            return "R";
         return this.name().toUpperCase().substring(0, 1);
     }//end toString 
 }//end class ShipType
