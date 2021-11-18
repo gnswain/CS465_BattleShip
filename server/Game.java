@@ -78,16 +78,20 @@ public class Game {
 
         System.out.println("\n" + current.getUsername() + " it is your turn");
 
-        System.out.println("\n" + other.getUsername() + "'s board\n" + other.getFullGrid() + "\n");
+        System.out.println("\n" + other.getUsername() + "'s Private board\n" + other.getFullGrid() 
+        + "\n");
+
+        System.out.println("\n" + other.getUsername() + "'s Public board\n" + other.getPublicGrid() 
+        + "\n");
         
         boolean valid = false;
         while (!valid) {
             try {
                 int row, col;
                 System.out.print("Please select a row > ");
-                row = Integer.parseInt(in.nextLine());
+                row = Integer.parseInt(in.nextLine().strip());
                 System.out.print("Please select a column > ");
-                col = Integer.parseInt(in.nextLine());
+                col = Integer.parseInt(in.nextLine().strip());
 
                 valid = other.isValidShot(row, col);
                 
