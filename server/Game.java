@@ -1,6 +1,8 @@
 package server;
 
 import java.util.InputMismatchException;
+import java.util.LinkedList;
+import java.util.Queue;
 import java.util.Scanner;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -24,142 +26,101 @@ public class Game {
     /** Sets the default size for the grid */
     public static final int DEFAULT_GRID = 10;
     
-    /** Board for the first player */
-    private Grid playerOne;
-    /** Board for the second player */
-    private Grid playerTwo;
+    /** Players in the game */
+    private Queue<Grid> players;          // Might want to change this. But I think we want a queue.
+    /** Board size for the game */
+    private int boardSize;
     /** If the player has started a game */
     private boolean startedGame;
-    /** Keeps track of whose turn it is */
-    private boolean playerOneTurn;
     /** True if game is over */
     private boolean gameOver;
     /** Used to get user input */
-    private Scanner in;             // Will almost definitely get removed.
     
     /**
-     * Creates a game with the default board size given the players' usernames.
-     * @param playerOne Username of player one.
-     * @param playerTwo Username of player two.
+     * Creates a game with the default board size.
      */
-    public Game(String playerOne, String playerTwo) {
-        this(playerOne, playerTwo, DEFAULT_GRID);
+    public Game() {
+        this(DEFAULT_GRID);
     }
 
     /**
      * Creates a game with the given board size and given the players' usernames.
-     * @param playerOne Username of player one.
-     * @param playerTwo Username of player two.
      * @param size Size of the board being used.
      */
-    public Game(String playerOne, String playerTwo, int size) {
-        this.playerOne = new Grid(size, playerOne);
-        this.playerTwo = new Grid(size, playerTwo);
-        startedGame = false;
-        gameOver = false;
-        playerOneTurn = false;
-        placeShips();
-        in = new Scanner(System.in);
+    public Game(int size) {
+        this.players = new LinkedList<Grid>();
+        this.startedGame = false;
+        this.gameOver = false;
+        this.boardSize = size;
     }
 
+    //TODO will likely end up removing turn(). Keeping it for reference for now.
     /**
-     * Handles a players turn. A lot of this functionality will get moved for the networked version.
+     * Adds a player to the game given their username.
+     * @param username Username of player being added.
      */
-    public void turn() {
-        // easy way to reference the player whose turn it is
-        Grid current, other;
-        if (playerOneTurn) {
-            current = playerOne;
-            other = playerTwo;
-        } else {
-            current = playerTwo;
-            other = playerOne;
-        }
+    // public void addPlayers(String username) {
+    //     Grid player = new Grid(this.boardSize, username);
+    //     player.placeShips();
+    //     players.add(player);
+    // }
 
-        System.out.println("\n" + current.getUsername() + " it is your turn");
+    // /**
+    //  * Handles a players turn. A lot of this functionality will get moved for the networked version.
+    //  */
+    // public void turn() {
+    //     // easy way to reference the player whose turn it is
+    //     Grid current, other;
+    //     if (playerOneTurn) {
+    //         current = playerOne;
+    //         other = playerTwo;
+    //     } else {
+    //         current = playerTwo;
+    //         other = playerOne;
+    //     }
 
-        System.out.println("\n" + other.getUsername() + "'s Private board\n" + other.getFullGrid() 
-        + "\n");
+    //     System.out.println("\n" + current.getUsername() + " it is your turn");
 
-        System.out.println("\n" + other.getUsername() + "'s Public board\n" + other.getPublicGrid() 
-        + "\n");
+    //     System.out.println("\n" + other.getUsername() + "'s Private board\n" + other.getFullGrid() 
+    //     + "\n");
+
+    //     System.out.println("\n" + other.getUsername() + "'s Public board\n" + other.getPublicGrid() 
+    //     + "\n");
         
-        boolean valid = false;
-        while (!valid) {
-            try {
-                int row, col;
-                System.out.print("Please select a row > ");
-                row = Integer.parseInt(in.nextLine().strip());
-                System.out.print("Please select a column > ");
-                col = Integer.parseInt(in.nextLine().strip());
+    //     boolean valid = false;
+    //     while (!valid) {
+    //         try {
+    //             int row, col;
+    //             System.out.print("Please select a row > ");
+    //             row = Integer.parseInt(in.nextLine().strip());
+    //             System.out.print("Please select a column > ");
+    //             col = Integer.parseInt(in.nextLine().strip());
 
-                valid = other.isValidShot(row, col);
+    //             valid = other.isValidShot(row, col);
                 
-                if (valid) {
-                    boolean hit = other.shot(row, col);
-                    System.out.println("\nShots fired at " + other.getUsername() + " by " 
-                                        + current.getUsername());
-                    if (hit) {
-                        if (!other.shipsLeft()) {
-                            System.out.println("GAME OVER: " + current.getUsername() + " wins!");
-                            gameOver = true;
-                            return; // checks win condition, only needs to check if hits that turn
-                        }
-                    }
+    //             if (valid) {
+    //                 boolean hit = other.shot(row, col);
+    //                 System.out.println("\nShots fired at " + other.getUsername() + " by " 
+    //                                     + current.getUsername());
+    //                 if (hit) {
+    //                     if (!other.shipsLeft()) {
+    //                         System.out.println("GAME OVER: " + current.getUsername() + " wins!");
+    //                         gameOver = true;
+    //                         return; // checks win condition, only needs to check if hits that turn
+    //                     }
+    //                 }
 
-                    // Switches whose turn it is
-                    playerOneTurn = !playerOneTurn;
-                } else {
-                    System.out.println("Invalid shot for " + current.getUsername() +
-                    " please try again.");
-                } // end if valid
-            } catch (NumberFormatException e) {
-                System.out.println("Rows and Columns must be integers.");
-            }
-        } // end while
-    } // end turn
-
-    /**
-     * Places the ships randomly for both players.
-     */
-    public void placeShips() {
-        Size size = Size.getSizeByInt(this.playerOne.getSize());
-
-        int total = ThreadLocalRandom.current().nextInt(size.min, size.max + 1);
-        ShipType[] types = ShipType.values();
-
-        int placed = 0;
-        while (placed < total) {
-            ShipType ship = types[ThreadLocalRandom.current().nextInt(types.length - 1)];
-            int row = ThreadLocalRandom.current().nextInt(0, playerOne.getSize());
-            int col = ThreadLocalRandom.current().nextInt(0, playerOne.getSize());
-
-            boolean vertical = ThreadLocalRandom.current().nextBoolean();
-            char orientation = vertical ? 'v' : 'h';
-            boolean positive = ThreadLocalRandom.current().nextBoolean();
-            int dir = positive ? 1 : -1;
-
-            if (playerOne.placeShip(ship, row, col, orientation, dir)) {
-                placed++;
-            }
-        }
-        // TODO create method that takes in a reference to a Grid that does this.
-        placed = 0;
-        while (placed < total) {
-            ShipType ship = types[ThreadLocalRandom.current().nextInt(types.length - 1)];
-            int row = ThreadLocalRandom.current().nextInt(0, playerOne.getSize());
-            int col = ThreadLocalRandom.current().nextInt(0, playerOne.getSize());
-
-            boolean vertical = ThreadLocalRandom.current().nextBoolean();
-            char orientation = vertical ? 'v' : 'h';
-            boolean positive = ThreadLocalRandom.current().nextBoolean();
-            int dir = positive ? 1 : -1;
-
-            if (playerTwo.placeShip(ship, row, col, orientation, dir)) {
-                placed++;
-            }
-        }
-    }
+    //                 // Switches whose turn it is
+    //                 playerOneTurn = !playerOneTurn;
+    //             } else {
+    //                 System.out.println("Invalid shot for " + current.getUsername() +
+    //                 " please try again.");
+    //             } // end if valid
+    //         } catch (NumberFormatException e) {
+    //             System.out.println("Rows and Columns must be integers.");
+    //         }
+    //     } // end while
+    // } // end turn
     
     /**
      * Used for testing data input.
@@ -167,73 +128,6 @@ public class Game {
      * @param args Not used. 
      */
     public static void main(String[] args) {
-        int size = 10;
-        if (args.length == 1)
-            size = Integer.parseInt(args[0]);
-            
-        Game game = new Game("PlayerOne", "PlayerTwo", size);
-
-        while (!game.gameOver) {
-            game.turn();
-        }
 
     } //end main
-
-    /**
-     * @author Brandon Welch
-     * @author Graham Swain
-     * @version November 12, 2021
-     *
-     * Stores the available board sizes and how many ships can be placed.
-     */
-    private enum Size {
-        TEN(10, 4, 6),
-        NINE(9, 3, 5),
-        EIGHT(8, 3, 5),
-        SEVEN(7, 2, 3),
-        SIX(6, 2, 3),
-        FIVE(5, 1, 2);
-
-        /** Size of the board */
-        private int size;
-        /** Minimum amount of ships allowed */
-        private int min;
-        /** Maxium amount of ships allowed */
-        private int max;
-
-        /**
-         * Creates enum given size, min, and max.
-         * @param size Size of the board.
-         * @param min Minimum number of ships allowed.
-         * @param max Maximum number of ships allowed.
-         */
-        private Size(int size, int min, int max) {
-            this.size = size;
-            this.min = min;
-            this.max = max;
-        }
-
-        /**
-         * Gets appropriate enum given size as an int.
-         * @param size Size of the board.
-         * @return Enum holding min and max ships allowed.
-         */
-        public static Size getSizeByInt(int size) {
-            switch (size) {
-                case 5:
-                    return FIVE;
-                case 6:
-                    return SIX;
-                case 7:
-                    return SEVEN;
-                case 8:
-                    return EIGHT;
-                case 9:
-                    return NINE;
-                case 10:
-                    return TEN;
-            }
-            return null;
-        } 
-    }
 }//end class Game

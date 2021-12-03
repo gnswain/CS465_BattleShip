@@ -111,7 +111,7 @@ public class Grid {
      * @param dir Direction of ship -> 1 for up/right, -1 for down/left.
      * @return True if ship was successfully placed.
      */
-    public boolean placeShip(ShipType ship, int row, int col, char orientation, int dir) {
+    private boolean placeShip(ShipType ship, int row, int col, char orientation, int dir) {
         // check to see if within bounds
         if (row < 0 || row >= board.length || col < 0 || col >= board.length)
             return false;
