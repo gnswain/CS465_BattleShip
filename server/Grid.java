@@ -1,5 +1,7 @@
 package server;
 
+import java.util.concurrent.ThreadLocalRandom;
+
 /**
  * @author Brandon Welch
  * @author Graham Swain
@@ -223,6 +225,32 @@ public class Grid {
     } // end shipsLeft
 
     /**
+     * Places ships randomly onto the board. Amount of ships placed is based off size.
+     */
+    public void placeShips() {
+        Size size = Size.getSizeByInt(this.size);
+
+        int total = ThreadLocalRandom.current().nextInt(size.min, size.max + 1);
+        ShipType[] types = ShipType.values();
+
+        int placed = 0;
+        while (placed < total) {
+            ShipType ship = types[ThreadLocalRandom.current().nextInt(types.length - 1)];
+            int row = ThreadLocalRandom.current().nextInt(0, this.getSize());
+            int col = ThreadLocalRandom.current().nextInt(0, this.getSize());
+
+            boolean vertical = ThreadLocalRandom.current().nextBoolean();
+            char orientation = vertical ? 'v' : 'h';
+            boolean positive = ThreadLocalRandom.current().nextBoolean();
+            int dir = positive ? 1 : -1;
+
+            if (this.placeShip(ship, row, col, orientation, dir)) {
+                placed++;
+            }
+        }
+    }
+
+    /**
      * Gets the owner of the board.
      * @return Username of the board's owner.
      */
@@ -245,26 +273,65 @@ public class Grid {
     public static void main(String[] args) {
         Grid grid = new Grid(8, "PlayerOne");
 
-        System.out.println("Full Grid: \n" + grid.getFullGrid());
-        System.out.println("Ships left (1): " + grid.shipsLeft());
-
-        System.out.println(grid.placeShip(ShipType.DESTROYER, 4, 2, 'v', 1));
-        System.out.println(grid.placeShip(ShipType.CRUISER, 5, 0, 'h', 1));
-
-        System.out.println("Full Grid: \n" + grid.getFullGrid());
-
-        System.out.println("Ships left (2): " + grid.shipsLeft());
-        System.out.println("Shot hit: " + grid.shot(0, 2));
-        System.out.println("Shot hit: " + grid.shot(1, 2));
-        System.out.println("Shot hit: " + grid.shot(2, 2));
-        
-        System.out.println("Shot hit: " + grid.shot(2, 5));
-        System.out.println("Full Grid: \n" + grid.getFullGrid());
-        System.out.println("Public Grid: \n" + grid.getPublicGrid());
-        System.out.println("Shot hit: " + grid.shot(3, 2));
-        System.out.println("Shot hit: " + grid.shot(4, 2));
-
-        System.out.println("Full Grid: \n" + grid.getFullGrid());
-        System.out.println("Ships left (3): " + grid.shipsLeft());
+        grid.placeShips();
+        System.out.println(grid.getFullGrid());
     }//end main
+
+    /**
+     * @author Brandon Welch
+     * @author Graham Swain
+     * @version November 12, 2021
+     *
+     * Stores the available board sizes and how many ships can be placed.
+     */
+    private enum Size {
+        TEN(10, 4, 6),
+        NINE(9, 3, 5),
+        EIGHT(8, 3, 5),
+        SEVEN(7, 2, 3),
+        SIX(6, 2, 3),
+        FIVE(5, 1, 2);
+
+        /** Size of the board */
+        private int size;
+        /** Minimum amount of ships allowed */
+        private int min;
+        /** Maxium amount of ships allowed */
+        private int max;
+
+        /**
+         * Creates enum given size, min, and max.
+         * @param size Size of the board.
+         * @param min Minimum number of ships allowed.
+         * @param max Maximum number of ships allowed.
+         */
+        private Size(int size, int min, int max) {
+            this.size = size;
+            this.min = min;
+            this.max = max;
+        }
+
+        /**
+         * Gets appropriate enum given size as an int.
+         * @param size Size of the board.
+         * @return Enum holding min and max ships allowed.
+         */
+        public static Size getSizeByInt(int size) {
+            switch (size) {
+                case 5:
+                    return FIVE;
+                case 6:
+                    return SIX;
+                case 7:
+                    return SEVEN;
+                case 8:
+                    return EIGHT;
+                case 9:
+                    return NINE;
+                case 10:
+                    return TEN;
+            }
+            return null;
+        }
+    } // end enum Size 
 }//end class Grid
