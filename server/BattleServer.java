@@ -5,11 +5,12 @@ import common.MessageListener;
 import common.MessageSource;
 import java.io.IOException;
 import java.net.ServerSocket;
+import java.net.Socket;
 
 /**
  * @author Brandon Welch
  * @author Graham Swain
- * @version November 12, 2021
+ * @version December 4, 2021
  *
  * CS465-01, Computer Networks
  * Dr. Scott Barlowe
@@ -55,12 +56,29 @@ public class BattleServer implements MessageListener{
 
 
     /**
-     * Used to listen for incoming clients.
-     *
+     * Used to listen for and accept incoming client requests. Then creating a ConnectionAgent 
+     * for the new client request.
      */
     public void listen() {
+        
+        /* An socket connection to a specific client */
+        Socket socket = null;
 
+        /* A ConnectionAgent representing the new client that has connected to the server. */
+        ConnectionAgent agent = null;
 
+        while (!serverSocket.isClosed()) {
+            try {
+                socket = serverSocket.accept();
+System.out.println("Now serving client " + socket.getInetAddress() + "...");
+                agent = new ConnectionAgent(socket);
+                agent.run();  //start the ConnectionAgent's thread to process client commands.
+            }//end try
+            catch (IOException ioe) {
+                System.err.println("IOException caught while attempting to accept a connection");
+                ioe.printStackTrace();
+            }//end catch
+        }//end while
     }//end listen
 
 

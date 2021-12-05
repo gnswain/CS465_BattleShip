@@ -9,7 +9,7 @@ import java.net.Socket;
 /**
  * @author Brandon Welch
  * @author Graham Swain
- * @version November 12, 2021
+ * @version December 4, 2021
  *
  * CS465-01, Computer Networks
  * Dr. Scott Barlowe
@@ -36,17 +36,16 @@ public class ConnectionAgent extends MessageSource implements Runnable {
 
 
     /**
-     * Create a single card for Magic the Gathering.
+     * Initializes a new ConnectionAgent with the provided socket.
      *
-     * @param mana Energy required to use the card.
+     * @param socket The socket used to communicate with the ConnectionAgent.
      */
     public ConnectionAgent(Socket socket) {
         
         this.socket = socket;
-        this.in = null;
-        this.out = null;
-        this.thread = null;
-
+        this.in = new Scanner(System.in);  //guessing this will need System.in
+        this.out = System.out;  //guessing this is correct
+        this.thread = new Thread();  //guessing
     }//end constructor
 
 
@@ -125,7 +124,7 @@ public class ConnectionAgent extends MessageSource implements Runnable {
      *
      */
     public void sendMessage(String message) {
-
+        
 
     }//end sendMessage
 

@@ -12,3 +12,4 @@
 
 ## ignore java class files
 */*.class
+*.class

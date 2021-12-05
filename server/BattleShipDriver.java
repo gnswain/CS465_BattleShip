@@ -24,18 +24,43 @@ public class BattleShipDriver {
     /**
      * This method serves as the entry point of the server program.
      *
-     * @param args Command line arguments to the program.  There must be exactly _____ arguments. 
-     * The first parameter specifies _____.  The second parameter, if present, must....
+     * @param args Command line arguments to the program.  There must be at least one argument. 
+     * The first parameter specifies the port number the server will listen on.  The second 
+     * parameter, if present, will represent the size of the game board.
      */
     public static void main(String[] args) {
 
-        if (args.length != 2) {
+        int port = -1; // invalid port to indicate uninitialized variable
+        int gridSize = 0;  //invalid port to indicate uninitialized variable
+
+        if (args.length == 1) {
+            try {
+                port = Integer.parseInt(args[1]);
+            }//end try
+            catch (NumberFormatException nfe) {
+                System.err.println(port + "is not a valid port #.");
+            }//end catch
+        } else if (args.length == 2) {
+            try {
+                port = Integer.parseInt(args[1]);
+                gridSize = Integer.parseInt(args[2]);
+            }//end try
+            catch (NumberFormatException nfe) {
+                System.err.println("Unable to parse command line arguments into numbers.");
+            }//end catch
+            
+        } else {    
+            System.err.println("\nUsage: java BattleServer <port #>");
             System.err.println("\nUsage: java BattleServer <port #> <board size>");
             System.exit(1);
-        }//end if    
+        }//end else
 
         try {
-
+            
+            //parse command line options
+            
+            BattleServer server = new BattleServer(port);
+            server.listen();
 
         }//end try
         catch (NumberFormatException nfe) {
