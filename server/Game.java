@@ -128,6 +128,28 @@ public class Game {
         return this.players.get(username).shipsLeft();
     }
 
+    /**
+     * Checks to see if a shot is valid against a specified.
+     * @param row Row of space being shot.
+     * @param col Column of space being shot.
+     * @param username Username whose Grid is being shot at.
+     * @return True if shot can be made.
+     */
+    public boolean isValidShot(int row, int col, String username) {
+        return this.players.get(username).isValidShot(row, col);
+    }
+
+    /**
+     * Takes a shot at a space. Does not check validity of shot.
+     * @param row Row of space being shot.
+     * @param col Column of space being shot.
+     * @param username
+     * @return True if shot hits.
+     */
+    public boolean shoot(int row, int col, String username) {
+        return this.players.get(username).shot(row, col);
+    }
+
 
     //TODO will likely end up removing turn(). Keeping it for reference for now.
     /**

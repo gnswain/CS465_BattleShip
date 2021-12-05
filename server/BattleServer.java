@@ -6,6 +6,7 @@ import common.MessageSource;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
 
 /**
  * @author Brandon Welch
@@ -26,22 +27,25 @@ import java.net.Socket;
 public class BattleServer implements MessageListener{
 
     /** The Server's socket to listen for incoming client requests. */
-    ServerSocket serverSocket;
+    private ServerSocket serverSocket;
 
-    /** */
-    int current;
+    /** Index of the player whose turn it is. */
+    private int current;
 
-    /** */
-    Game game;
+    /** List of usernames of players connected to the game. */
+    private ArrayList<String> usernames;
+
+    /** Game being played. */
+    private Game game;
 
 
     /**
-     * Initializes a BattleServer to listen on the port provided.
+     * Initializes a BattleServer to listen on the port provided. Uses default grid size.
      *
      * @param port The port to listen for incoming client requests.
      */
     public BattleServer(int port) {
-
+        this.game = new Game();
         this.current = -1;  //unsure what to initialize to
         this.game = null;  //unsure what to initialize to
 
@@ -50,9 +54,20 @@ public class BattleServer implements MessageListener{
                                                          //SecurityException
         }//end try
         catch (IOException ioe) {
-            System.err.println("IOException caught while initializing a ServerSocket.");
+            System.err.println("\nIOException caught while initializing a ServerSocket.\n");
+            System.exit(1);
         }//end catch
     }//end constructor
+
+    /**
+     * Initializes a BattleServer to listen on the port provided and with a specified game size.
+     * @param port The port to listen for incoming client requests.
+     * @param gridSize Size of the grids to be played on.
+     */
+    public BattleServer(int port, int gridSize) {
+        this(port);
+        this.game = new Game(gridSize);
+    }
 
 
     /**
@@ -75,8 +90,10 @@ System.out.println("Now serving client " + socket.getInetAddress() + "...");
                 agent.run();  //start the ConnectionAgent's thread to process client commands.
             }//end try
             catch (IOException ioe) {
-                System.err.println("IOException caught while attempting to accept a connection");
+                System.err.println("\nIOException caught while attempting to accept a connection.");
+                System.err.println();
                 ioe.printStackTrace();
+                System.exit(1);
             }//end catch
         }//end while
     }//end listen

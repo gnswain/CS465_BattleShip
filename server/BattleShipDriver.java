@@ -1,7 +1,5 @@
 package server;
 
-import java.io.FileNotFoundException;
-
 /**
  * @author Brandon Welch
  * @author Graham Swain
@@ -20,7 +18,6 @@ import java.io.FileNotFoundException;
  * off, default to size 10 x 10).  Square arrays are assumed.
  */
 public class BattleShipDriver {
-    
     /**
      * This method serves as the entry point of the server program.
      *
@@ -32,43 +29,51 @@ public class BattleShipDriver {
 
         int port = -1; // invalid port to indicate uninitialized variable
         int gridSize = 0;  //invalid port to indicate uninitialized variable
+        BattleServer server = null; // uninitialized server
+        
+        if (args.length == 1 || args.length == 2) {
+            try {
+                port = Integer.parseInt(args[0]);
+            }//end try
+            catch (NumberFormatException nfe) {
+                System.err.println("\n'" + args[0] + "' is not a valid port #.\n");
+                System.exit(1);
+            }//end catch
 
-        if (args.length == 1) {
-            try {
-                port = Integer.parseInt(args[1]);
-            }//end try
-            catch (NumberFormatException nfe) {
-                System.err.println(port + "is not a valid port #.");
-            }//end catch
-        } else if (args.length == 2) {
-            try {
-                port = Integer.parseInt(args[1]);
-                gridSize = Integer.parseInt(args[2]);
-            }//end try
-            catch (NumberFormatException nfe) {
-                System.err.println("Unable to parse command line arguments into numbers.");
-            }//end catch
-            
+            if (args.length == 2) {
+                try {
+                    gridSize = Integer.parseInt(args[1]);
+                    if (gridSize < Grid.MIN_SIZE || gridSize > Grid.MAX_SIZE) {
+                        throw new NumberFormatException();
+                    }
+                    server = new BattleServer(port, gridSize);
+                }//end try
+                catch (NumberFormatException nfe) {
+                    System.err.println("\nGrid size must be between " + Grid.MIN_SIZE + " and " +
+                                        Grid.MAX_SIZE + ".\n");
+                    System.exit(1);
+                }//end catch
+            } else {
+                server = new BattleServer(port);
+            }
         } else {    
-            System.err.println("\nUsage: java BattleServer <port #>");
-            System.err.println("\nUsage: java BattleServer <port #> <board size>");
+            System.err.println("\nUsage: java BattleServer <port #>\n\n   OR");
+            System.err.println("\nUsage: java BattleServer <port #> <board size>\n");
             System.exit(1);
         }//end else
 
         try {
             
             //parse command line options
-            
-            BattleServer server = new BattleServer(port);
             server.listen();
 
         }//end try
         catch (NumberFormatException nfe) {
-            System.err.println("NumberFormatException caught by driver.");
+            System.err.println("\nNumberFormatException caught by driver.\n");
             System.err.println(nfe.getMessage());
         }//end catch
         catch (Exception e) {
-            System.err.println("Exception caught by driver.");
+            System.err.println("\nException caught by driver.\n");
             System.err.println(e.getMessage());
         }//end catch
     }//end main

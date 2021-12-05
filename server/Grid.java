@@ -17,7 +17,10 @@ import java.util.concurrent.ThreadLocalRandom;
  * This class contains the logic for a single board of BattleShip.
  */
 public class Grid {
-
+    /** Maximum size for a Grid. */
+    public static final int MAX_SIZE = 10;
+    /** Minimum size for a Grid. */
+    public static final int MIN_SIZE = 5;
     /** Character representation of a hit. */
     public static final String HIT = "X";
     /** Character representation of a miss. */
@@ -189,7 +192,7 @@ public class Grid {
             return false;
         }
         if (board[row][col].equals(HIT) || board[row][col].equals(MISS)) {
-            return false;
+            return false; // TODO ask if shooting at the same place twice is allowed
         }
         return true;
     } // end isValidShot
@@ -285,15 +288,13 @@ public class Grid {
      * Stores the available board sizes and how many ships can be placed.
      */
     private enum Size {
-        TEN(10, 4, 6),
-        NINE(9, 3, 5),
-        EIGHT(8, 3, 5),
-        SEVEN(7, 2, 3),
-        SIX(6, 2, 3),
-        FIVE(5, 1, 2);
+        TEN(4, 6),
+        NINE(3, 5),
+        EIGHT(3, 5),
+        SEVEN(2, 3),
+        SIX(2, 3),
+        FIVE(1, 2);
 
-        /** Size of the board */
-        private int size;
         /** Minimum amount of ships allowed */
         private int min;
         /** Maxium amount of ships allowed */
@@ -305,8 +306,7 @@ public class Grid {
          * @param min Minimum number of ships allowed.
          * @param max Maximum number of ships allowed.
          */
-        private Size(int size, int min, int max) {
-            this.size = size;
+        private Size(int min, int max) {
             this.min = min;
             this.max = max;
         }
