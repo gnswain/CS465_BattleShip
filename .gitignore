@@ -13,3 +13,6 @@
 ## ignore java class files
 */*.class
 *.class
+
+## ignore test file
+Test.*

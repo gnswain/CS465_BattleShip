@@ -32,11 +32,14 @@ public class BattleServer implements MessageListener{
     /** Index of the player whose turn it is. */
     private int current;
 
-    /** List of usernames of players connected to the game. */
+    /** List of usernames of players connected to the game. Used to track whose turn it is. */
     private ArrayList<String> usernames;
 
     /** Game being played. */
     private Game game;
+
+    /** Stores ConnectionAgents for all connected users. */
+    private ArrayList<ConnectionAgent> users;
 
 
     /**
@@ -46,6 +49,8 @@ public class BattleServer implements MessageListener{
      */
     public BattleServer(int port) {
         this.game = new Game();
+        this.users = new ArrayList<>();
+
         this.current = -1;  //unsure what to initialize to
         this.game = null;  //unsure what to initialize to
 
@@ -87,6 +92,7 @@ public class BattleServer implements MessageListener{
                 socket = serverSocket.accept();
 System.out.println("Now serving client " + socket.getInetAddress() + "...");
                 agent = new ConnectionAgent(socket);
+                users.add(agent);
                 agent.run();  //start the ConnectionAgent's thread to process client commands.
             }//end try
             catch (IOException ioe) {
@@ -105,9 +111,10 @@ System.out.println("Now serving client " + socket.getInetAddress() + "...");
      * @param message The message to be broadcast.
      */
     public void broadcast(String message) {
-
-
-    }//end broadcast
+        for (ConnectionAgent a : users) {
+            a.sendMessage(message);
+        }
+    } //end broadcast
 
 
     /**
@@ -117,10 +124,26 @@ System.out.println("Now serving client " + socket.getInetAddress() + "...");
      * @param source The source from which this message originated (if needed).
      */
     public void messageReceived(String message, MessageSource source) {
+        String[] command = message.split(" ");
 
-
-
-    }//end messageReceived
+        switch (command[0]) {                               // Assumes correct input. Case sensitive
+            case "/battle":
+                battle(command, source);
+                break;
+            case "/start":
+                start(command, source);
+                break;
+            case "/fire":
+                fire(command, source);
+                break;
+            case "/surrender":
+                surrender(command, source);
+                break;
+            case "/display":
+                display(command, source);
+                break;
+        }
+    } //end messageReceived
     
     /**
      * Used to notify observers that the subject will not receive new messages; observers can 
@@ -131,8 +154,35 @@ System.out.println("Now serving client " + socket.getInetAddress() + "...");
     public void sourceClosed(MessageSource source) {
 
 
-
     }//end sourceClosed
+
+    private void battle(String[] command, MessageSource source) {
+
+    }
+
+    private void start(String[] command, MessageSource source) {
+
+    }
+
+    private void fire(String[] command, MessageSource source) {
+
+    }
+
+    private void surrender(String[] command, MessageSource source) {
+
+    }
+
+    private void display(String[] command, MessageSource source) {
+
+    }
+
+    /**
+     * Switches the current turn to the next player. Loops back to 0 if it is on the last player.
+     */
+    private void nextTurn() {
+        current = current >= this.usernames.size() - 1 ? 0 : ++current;
+        broadcast(usernames.get(current) + " it is your turn");
+    }
 
 
     /**
