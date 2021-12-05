@@ -1,12 +1,6 @@
 package server;
 
-import java.util.InputMismatchException;
-import java.util.LinkedList;
-import java.util.Queue;
-import java.util.Scanner;
-import java.util.concurrent.ThreadLocalRandom;
-
-//import 
+import java.util.Hashtable;
 
 /**
  * @author Brandon Welch
@@ -20,21 +14,20 @@ import java.util.concurrent.ThreadLocalRandom;
  *
  * Project Three: Battleship(Multiuser game)
  * 
- * This class contains the logic for the game of BattleShip.  It has a grid for each client.
+ * This class contains the logic for the game of BattleShip. It has a grid for each client.
  */
 public class Game {
     /** Sets the default size for the grid */
     public static final int DEFAULT_GRID = 10;
     
     /** Players in the game */
-    private Queue<Grid> players;          // Might want to change this. But I think we want a queue.
+    private Hashtable<String, Grid> players;      // Hashtable makes more sense here. Will handle the queue in battle server
     /** Board size for the game */
     private int boardSize;
     /** If the player has started a game */
     private boolean startedGame;
     /** True if game is over */
-    private boolean gameOver;
-    /** Used to get user input */
+    private boolean gameOver;                              // Don't know if we need this.
     
     /**
      * Creates a game with the default board size.
@@ -48,11 +41,93 @@ public class Game {
      * @param size Size of the board being used.
      */
     public Game(int size) {
-        this.players = new LinkedList<Grid>();
+        this.players = new Hashtable<String, Grid>();
         this.startedGame = false;
         this.gameOver = false;
         this.boardSize = size;
     }
+
+    /**
+     * Adds a user to the game given a username.
+     * @param username Username of player being added to the game.
+     */
+    public void addPlayer(String username) {
+        this.players.put(username, new Grid(this.boardSize, username));
+    }
+
+    /**
+     * Removes a player from the game given a user name.
+     * @param username Username of player being removed from the game.
+     */
+    public void removePlayer(String username) {
+        this.players.remove(username);
+    }
+
+    /**
+     * Gets the full Grid of the specified player.
+     * @param username Username of the player's Grid to retrieve.
+     * @return Full Grid of specified player.
+     */
+    public String getFullGrid(String username) {
+        return this.players.get(username).getFullGrid();
+    }
+
+    /**
+     * Gets the Private Grid of the specified player.
+     * @param username Username of the player's Grid to retrieve.
+     * @return Private Grid of specified player.
+     */
+    public String getPublicGrid(String username) {
+        return this.players.get(username).getPublicGrid();
+    }
+
+    /**
+     * Sets startedGame to True.
+     */
+    public void startGame() {
+        this.startedGame = true;
+    }
+
+    /**
+     * Returns if the Game has started.
+     * @return True if Game has started.
+     */
+    public boolean isStarted() {
+        return this.startedGame;
+    }
+
+    /**
+     * Returns how many players are joined to the current Game.
+     * @return How many players are in current Game.
+     */
+    public int amountOfPlayers() {
+        return this.players.size();
+    }
+
+    /**
+     * Sets gameOver to true. Signifies game being over.
+     */
+    public void gameOver() {
+        this.gameOver = true;
+    }
+
+    /**
+     * Returns if game is over.
+     * @return True if game is over.
+     */
+    public boolean isGameOver() {
+        return this.gameOver;
+    }
+
+    /**
+     * Returns if specified player has ships left on the board.
+     * @param username Username of player's board being checked.
+     * @return True if player has ships left in play.
+     */
+    public boolean shipsLeft(String username) {
+        return this.players.get(username).shipsLeft();
+    }
+
 
     //TODO will likely end up removing turn(). Keeping it for reference for now.
     /**
