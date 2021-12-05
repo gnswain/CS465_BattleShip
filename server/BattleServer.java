@@ -154,27 +154,114 @@ System.out.println("Now serving client " + socket.getInetAddress() + "...");
     public void sourceClosed(MessageSource source) {
 
 
-    }//end sourceClosed
+    } //end sourceClosed
 
+    /**
+     * Handles the /battle command.
+     * @param command /battle <username>
+     * @param source Source sending command.
+     */
     private void battle(String[] command, MessageSource source) {
+        if (command.length != 2) {
+            sendMessage(source, "Usage: /battle <username>");
+            return;
+        }
+        if (game.isStarted()) { // Can't join if game has started
+            sendMessage(source, "Game already in progress");
+        } else {
+            String username = command[1];
+            for (String name : usernames) {
+                if (username.equals(name)) {
+                    sendMessage(source, "Username '" + username + "' already taken");
+                    return; // Checks to see if username is taken
+                }
+            }
 
-    }
+            // Player joins successfully
+            usernames.add(username);
+            broadcast("!!! " + username + " has entered battle");
+        }
+    } // end battle
 
+    /**
+     * Handles the /start command.
+     * @param command /start
+     * @param source Source sending command.
+     */
     private void start(String[] command, MessageSource source) {
+        if (command.length != 1) {
+            sendMessage(source, "Usage: /start");
+            return;
+        }
+        if (!game.isStarted() && users.size() >= 2) {
+            // Game is successfully started
+            this.current = 0;
+            this.game.startGame();
 
-    }
+            // Adds all the connected users to the game
+            for (String username : usernames)
+                game.addPlayer(username);
 
+            broadcast("The game begins");
+            broadcast(usernames.get(current) + " it is your turn");
+        } else if (!game.isStarted() && this.users.size() < 2) {
+            // too few players to begin game
+            sendMessage(source, "Not enough players to play the game");
+        } else if (game.isStarted()) {
+            // game already in progress
+            sendMessage(source, "The game has already started");
+        }
+    } // end start
+
+    /**
+     * Handles the /fire command.
+     * @param command /fire <[0-9]+> <[0-9]+> <username>
+     * @param source Source sending command.
+     */
     private void fire(String[] command, MessageSource source) {
+        if (command.length != 4) {
+            sendMessage(source, "Usage: /fire <[0-9]+> <[0-9]+> <username>");
+            return;
+        }
+    } // end fire
 
-    }
-
+    /**
+     * Handles the /surrender command.
+     * @param command /surrender
+     * @param source Source sending command.
+     */
     private void surrender(String[] command, MessageSource source) {
+        if (command.length != 1) {
+            sendMessage(source, "Usage: /surrender");
+            return;
+        }
+    } // end surrender
 
-    }
-
+    /**
+     * Handles the /display command.
+     * @param command /display <username>
+     * @param source Source sending command.
+     */
     private void display(String[] command, MessageSource source) {
+        if (command.length != 2) {
+            sendMessage(source, "Usage: /display <username>");
+            return;
+        }
+    } // end display
 
-    }
+    /**
+     * Sends a message to a specific player.
+     * @param source Player to send message to.
+     * @param message Message being sent.
+     */
+    private void sendMessage(MessageSource source, String message) {
+        for (ConnectionAgent player : users) {
+            if (player.equals(source)) {
+                player.sendMessage(message);
+                return;
+            }
+        }
+    } // end sendMessage
 
     /**
      * Switches the current turn to the next player. Loops back to 0 if it is on the last player.
@@ -182,7 +269,7 @@ System.out.println("Now serving client " + socket.getInetAddress() + "...");
     private void nextTurn() {
         current = current >= this.usernames.size() - 1 ? 0 : ++current;
         broadcast(usernames.get(current) + " it is your turn");
-    }
+    } // end nextTurn()
 
 
     /**
