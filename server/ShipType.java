@@ -3,9 +3,9 @@ package server;
 import java.io.Serializable;
 
 /**
- * @author Brandon Welch
  * @author Graham Swain
- * @version November 14, 2021
+ * @author Brandon Welch
+ * @version December 5, 2021
  *
  * CS465-01, Computer Networks
  * Dr. Scott Barlowe
@@ -62,6 +62,7 @@ public enum ShipType implements Serializable, Comparable<ShipType> {
      */
     @Override
     public String toString() {
+        /* The Cruiser ship is the only Symbol Maping that is not the first letter of the ship. */
         if (this == CRUISER)
             return "R";
         return this.name().toUpperCase().substring(0, 1);

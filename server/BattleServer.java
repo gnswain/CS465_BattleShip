@@ -62,17 +62,22 @@ public class BattleServer implements MessageListener{
             System.err.println("\nIOException caught while initializing a ServerSocket.\n");
             System.exit(1);
         }//end catch
+        catch (IllegalArgumentException iae) {
+            System.err.println("\nPort number is out of range.\n");
+            System.exit(1);
+        }//end catch
     }//end constructor
 
     /**
      * Initializes a BattleServer to listen on the port provided and with a specified game size.
+     *
      * @param port The port to listen for incoming client requests.
      * @param gridSize Size of the grids to be played on.
      */
     public BattleServer(int port, int gridSize) {
         this(port);
         this.game = new Game(gridSize);
-    }
+    }//end constructor
 
 
     /**
