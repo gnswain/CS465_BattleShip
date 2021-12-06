@@ -12,6 +12,9 @@
 
 ## ignore java class files
 */*.class
+common/*.class
+server/*.class
+client/*.class
 *.class
 
 ## ignore test file
