@@ -3,6 +3,7 @@ package client;
 import common.MessageListener;
 import common.MessageSource;
 import common.ConnectionAgent;
+import java.io.IOException;
 import java.net.UnknownHostException;
 import java.net.Socket;
 import java.net.InetAddress;
@@ -67,14 +68,20 @@ public class BattleClient extends MessageSource implements MessageListener {
      *
      */
     protected void connect() {
+
 System.out.println("called BattleClient.connect()");
-        /* The clients Socket to connect with the Server. */
-        Socket socket = new Socket(this.host, this.port);
+
+        try {
+            /* The clients Socket to connect with the Server. */
+            Socket socket = new Socket(this.host, this.port);
 System.out.println("creating a connection agent in BattleClient.listen()");        
-        ConnectionAgent agent = new ConnectionAgent(socket);
-
-
-
+            ConnectionAgent agent = new ConnectionAgent(socket);
+        }//end try
+        catch(IOException ioe) {
+            System.err.println("\nIOException caught while creating a new socket");
+            System.err.println(ioe.getMessage());
+            ioe.printStackTrace();
+        }//end catch
     }//end main
 
 

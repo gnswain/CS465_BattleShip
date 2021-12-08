@@ -56,7 +56,7 @@ public class PrintStreamMessageListener implements MessageListener {
      */
     public void sourceClosed(MessageSource source) {
 
-        source.closeMessageSource();
+
     }//end sourceClosed
 
 
