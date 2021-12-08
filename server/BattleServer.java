@@ -48,11 +48,22 @@ public class BattleServer implements MessageListener{
      * @param port The port to listen for incoming client requests.
      */
     public BattleServer(int port) {
-        this.game = new Game();
-        this.users = new ArrayList<>();
 
+        this(port, Game.DEFAULT_GRID);
+    }//end constructor
+
+
+    /**
+     * Initializes a BattleServer to listen on the port provided and with a specified game size.
+     *
+     * @param port The port to listen for incoming client requests.
+     * @param gridSize Size of the grids to be played on.
+     */
+    public BattleServer(int port, int gridSize) {
+
+        this.game = new Game(gridSize);
+        this.users = new ArrayList<>();
         this.current = -1;  //unsure what to initialize to
-        this.game = null;  //unsure what to initialize to
 
         try { 
             this.serverSocket = new ServerSocket(port);  //IllegalArgumentException
@@ -66,17 +77,6 @@ public class BattleServer implements MessageListener{
             System.err.println("\nPort number is out of range.\n");
             System.exit(1);
         }//end catch
-    }//end constructor
-
-    /**
-     * Initializes a BattleServer to listen on the port provided and with a specified game size.
-     *
-     * @param port The port to listen for incoming client requests.
-     * @param gridSize Size of the grids to be played on.
-     */
-    public BattleServer(int port, int gridSize) {
-        this(port);
-        this.game = new Game(gridSize);
     }//end constructor
 
 
@@ -147,7 +147,7 @@ System.out.println("Now serving client " + socket.getInetAddress() + "...");
             case "/display":
                 display(command, source);
                 break;
-        }
+        }//end switch
     } //end messageReceived
     
     /**
@@ -162,15 +162,17 @@ System.out.println("Now serving client " + socket.getInetAddress() + "...");
     } //end sourceClosed
 
     /**
-     * Handles the /battle command.
+     * Handles the /battle command from users.
+     *
      * @param command /battle <username>
      * @param source Source sending command.
      */
     private void battle(String[] command, MessageSource source) {
+
         if (command.length != 2) {
             sendMessage(source, "Usage: /battle <username>");
             return;
-        }
+        }//end if
         if (game.isStarted()) { // Can't join if game has started
             sendMessage(source, "Game already in progress");
         } else {
@@ -179,21 +181,24 @@ System.out.println("Now serving client " + socket.getInetAddress() + "...");
                 if (username.equals(name)) {
                     sendMessage(source, "Username '" + username + "' already taken");
                     return; // Checks to see if username is taken
-                }
-            }
+                }//end if
+            }//end for
 
             // Player joins successfully
             usernames.add(username);
             broadcast("!!! " + username + " has entered battle");
-        }
-    } // end battle
+        }//end else
+    }//end battle
+
 
     /**
      * Handles the /start command.
+     *
      * @param command /start
      * @param source Source sending command.
      */
     private void start(String[] command, MessageSource source) {
+
         if (command.length != 1) {
             sendMessage(source, "Usage: /start");
             return;
@@ -215,47 +220,61 @@ System.out.println("Now serving client " + socket.getInetAddress() + "...");
         } else if (game.isStarted()) {
             // game already in progress
             sendMessage(source, "The game has already started");
-        }
-    } // end start
+        }//end elseif
+    }//end start
+
 
     /**
      * Handles the /fire command.
+     *
      * @param command /fire <[0-9]+> <[0-9]+> <username>
      * @param source Source sending command.
      */
     private void fire(String[] command, MessageSource source) {
+
         if (command.length != 4) {
             sendMessage(source, "Usage: /fire <[0-9]+> <[0-9]+> <username>");
             return;
-        }
-    } // end fire
+        }//end if
+    }//end fire
+
 
     /**
      * Handles the /surrender command.
+     *
      * @param command /surrender
      * @param source Source sending command.
      */
     private void surrender(String[] command, MessageSource source) {
+
         if (command.length != 1) {
             sendMessage(source, "Usage: /surrender");
             return;
-        }
-    } // end surrender
+        }//end if
+
+    //NOTE: close the connection agents socket and remove them from the game. 
+
+    }//end surrender
+
 
     /**
      * Handles the /display command.
+     *
      * @param command /display <username>
      * @param source Source sending command.
      */
     private void display(String[] command, MessageSource source) {
+
         if (command.length != 2) {
             sendMessage(source, "Usage: /display <username>");
             return;
-        }
-    } // end display
+        }//end if
+    }//end display
+
 
     /**
      * Sends a message to a specific player.
+     *
      * @param source Player to send message to.
      * @param message Message being sent.
      */
@@ -264,17 +283,19 @@ System.out.println("Now serving client " + socket.getInetAddress() + "...");
             if (player.equals(source)) {
                 player.sendMessage(message);
                 return;
-            }
-        }
-    } // end sendMessage
+            }//end if
+        }//end for
+    }//end sendMessage
+
 
     /**
      * Switches the current turn to the next player. Loops back to 0 if it is on the last player.
      */
     private void nextTurn() {
+
         current = current >= this.usernames.size() - 1 ? 0 : ++current;
         broadcast(usernames.get(current) + " it is your turn");
-    } // end nextTurn()
+    }//end nextTurn()
 
 
     /**

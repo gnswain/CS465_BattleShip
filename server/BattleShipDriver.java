@@ -28,7 +28,7 @@ public class BattleShipDriver {
     public static void main(String[] args) {
 
         int port = -1; // invalid port to indicate uninitialized variable
-        int gridSize = 0;  //invalid port to indicate uninitialized variable
+        int gridSize = 0;  // invalid gridSize to indicate uninitialized variable
         BattleServer server = null; // uninitialized server
         
         if (args.length == 1 || args.length == 2) {
