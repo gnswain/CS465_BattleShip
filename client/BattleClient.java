@@ -2,14 +2,16 @@ package client;
 
 import common.MessageListener;
 import common.MessageSource;
+import common.ConnectionAgent;
 import java.net.UnknownHostException;
 import java.net.Socket;
 import java.net.InetAddress;
 
 /**
- * @author Brandon Welch
  * @author Graham Swain
- * @version November 12, 2021
+ * @author Brandon Welch
+ *
+ * @version December 8, 2021
  *
  * CS465-01, Computer Networks
  * Dr. Scott Barlowe
@@ -33,7 +35,7 @@ public class BattleClient extends MessageSource implements MessageListener {
     /** The port # to send requests to. */
     private int port;
 
-    /** The username to interact with */
+    /** The username to interact with. */
     private String username;
 
 
@@ -50,10 +52,11 @@ public class BattleClient extends MessageSource implements MessageListener {
             this.host = InetAddress.getByName(hostname); //SecurityException
         }//end try
         catch (UnknownHostException uhe) {
-            System.err.println("UnknownHostException thrown in the Battleclient constructor");
-            uhe.getMessage();
+            System.err.println("\nThe hostname/server you are trying to reach is invalid.\n");
+            System.err.println(uhe.getMessage());
             uhe.printStackTrace();
         }//end catch
+
         this.port = port;
         this.username = username;
     }//end constructor
@@ -64,6 +67,12 @@ public class BattleClient extends MessageSource implements MessageListener {
      *
      */
     protected void connect() {
+
+        /* The clients Socket to connect with the Server. */
+        Socket socket = new Socket(this.host, this.port);
+        
+        ConnectionAgent agent = new ConnectionAgent(socket);
+
 
 
     }//end main

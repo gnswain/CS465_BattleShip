@@ -36,7 +36,7 @@ public class BattleShipDriver {
                 port = Integer.parseInt(args[0]);
             }//end try
             catch (NumberFormatException nfe) {
-                System.err.println("\n'" + args[0] + "' is not a valid port #.\n");
+                System.err.println("\n'" + args[0] + "' is not a valid number.\n");
                 System.exit(1);
             }//end catch
 
@@ -47,6 +47,7 @@ public class BattleShipDriver {
                         throw new NumberFormatException();
                     }//end if
                     server = new BattleServer(port, gridSize);
+System.out.println("calling BattleServer(port, gridSize)");
                 }//end try
                 catch (NumberFormatException nfe) {
                     System.err.println("\nGrid size must be between " + Grid.MIN_SIZE + " and " +
@@ -55,6 +56,7 @@ public class BattleShipDriver {
                 }//end catch
             } else {
                 server = new BattleServer(port);
+System.out.println("calling BattleServer(port)");
             }//end else
         } else {    
             System.err.println("\nUsage: java BattleServer <port #>\n\n   OR");
@@ -64,8 +66,8 @@ public class BattleShipDriver {
 
         try {
             //parse command line options
+System.out.println("calling BattleServer's listen()");
             server.listen();
-
         }//end try
         catch (NumberFormatException nfe) {
             System.err.println("\nNumberFormatException caught by driver.\n");

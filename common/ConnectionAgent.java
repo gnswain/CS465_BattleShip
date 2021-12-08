@@ -7,9 +7,10 @@ import java.io.PrintStream;
 import java.net.Socket;
 
 /**
- * @author Brandon Welch
  * @author Graham Swain
- * @version December 4, 2021
+ * @author Brandon Welch
+ *
+ * @version December 8, 2021
  *
  * CS465-01, Computer Networks
  * Dr. Scott Barlowe
@@ -43,9 +44,9 @@ public class ConnectionAgent extends MessageSource implements Runnable {
     public ConnectionAgent(Socket socket) {
         
         this.socket = socket;
-        this.in = new Scanner(System.in);  //guessing this will need System.in
+        this.in = new Scanner(System.in);
         this.out = System.out;  //guessing this is correct
-        this.thread = new Thread();  //guessing
+        this.thread = new Thread(this);  //guessing
     }//end constructor
 
 
@@ -130,8 +131,9 @@ public class ConnectionAgent extends MessageSource implements Runnable {
 
 
     /**
-     * Is connected...
+     * Determines if the client is connected to the server.
      *
+     * true If the client has an open connection to the server.
      */
     public boolean isConnected(){
 
@@ -160,6 +162,9 @@ public class ConnectionAgent extends MessageSource implements Runnable {
      *
      */
     public void run() {
+System.out.println("Called ConnectionAgent's run()");
+
+
 
 
     }//end run 

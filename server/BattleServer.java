@@ -85,20 +85,25 @@ public class BattleServer implements MessageListener{
      * for the new client request.
      */
     public void listen() {
-        
         /* An socket connection to a specific client */
         Socket socket = null;
 
         /* A ConnectionAgent representing the new client that has connected to the server. */
         ConnectionAgent agent = null;
 
+System.out.println("Entered listen()");
         while (!serverSocket.isClosed()) {
+System.out.println("Entered listen() while loop");
             try {
+System.out.println("Entered try block");
                 socket = serverSocket.accept();
-System.out.println("Now serving client " + socket.getInetAddress() + "...");
+System.out.println("Accepted a new socket");
+//System.out.println("Now serving client " + socket.getInetAddress() + "...");
                 agent = new ConnectionAgent(socket);
                 users.add(agent);
+System.out.println("added agent " + agent + " to users ArrayList");
                 agent.run();  //start the ConnectionAgent's thread to process client commands.
+System.out.println("Calling ConnectionAgent's run()");
             }//end try
             catch (IOException ioe) {
                 System.err.println("\nIOException caught while attempting to accept a connection.");
