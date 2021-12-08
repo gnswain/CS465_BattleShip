@@ -5,9 +5,9 @@ import common.MessageSource;
 import java.io.PrintStream;
 
 /**
- * @author Brandon Welch
  * @author Graham Swain
- * @version November 12, 2021
+ * @author Brandon Welch
+ * @version December 8, 2021
  *
  * CS465-01, Computer Networks
  * Dr. Scott Barlowe
@@ -22,13 +22,13 @@ import java.io.PrintStream;
  */
 public class PrintStreamMessageListener implements MessageListener {
 
-    /** The PrintStream to output to. */
+    /** The PrintStream to output messages to. */
     PrintStream out;
     
     /**
      * Initializes a new PrintStreamMessageListener with the specified PrintStream.
      *
-     * @param out The PrintStream to output to. 
+     * @param out The PrintStream to output messages to. 
      */
     public PrintStreamMessageListener(PrintStream out) {
 
@@ -49,14 +49,14 @@ public class PrintStreamMessageListener implements MessageListener {
 
 
     /**
-     * used to notify observers that the subject will not receive new messages;  observers can 
+     * Used to notify observers that the subject will not receive new messages;  observers can 
      * deregister themselves.
      *
      * @param source The <code>MessageSource</code> that does not expect more messages. 
      */
     public void sourceClosed(MessageSource source) {
 
-
+        source.closeMessageSource();
     }//end sourceClosed
 
 

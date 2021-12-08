@@ -32,7 +32,7 @@ public class ConnectionAgent extends MessageSource implements Runnable {
     /* The Stream used to notify Observers. */
     private PrintStream out;
 
-    /* The thread. */
+    /* The thread used to perform work for the ConnectionAgent. */
     private Thread thread;
 
 
@@ -123,10 +123,12 @@ public class ConnectionAgent extends MessageSource implements Runnable {
     /**
      * Sends a message.
      *
+     * @param message The message you want to send.
      */
     public void sendMessage(String message) {
         
-
+        /* Notify all registered listeners. */
+        this.notifyReceipt(message); //notifyReceipt is in the messageSource class
     }//end sendMessage
 
 
@@ -154,6 +156,12 @@ public class ConnectionAgent extends MessageSource implements Runnable {
         catch (IOException ioe) {
             System.err.println("Unable to close the socket in ConnectionAgent.close()");
         }//end catch
+
+        
+        //Alternative:
+//        this.closeMessageSource();
+
+
     }//end close
 
 
@@ -161,6 +169,7 @@ public class ConnectionAgent extends MessageSource implements Runnable {
      * Assign work to a thread.
      *
      */
+    @Override
     public void run() {
 System.out.println("Called ConnectionAgent's run()");
 

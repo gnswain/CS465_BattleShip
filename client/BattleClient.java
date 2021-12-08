@@ -67,10 +67,10 @@ public class BattleClient extends MessageSource implements MessageListener {
      *
      */
     protected void connect() {
-
+System.out.println("called BattleClient.connect()");
         /* The clients Socket to connect with the Server. */
         Socket socket = new Socket(this.host, this.port);
-        
+System.out.println("creating a connection agent in BattleClient.listen()");        
         ConnectionAgent agent = new ConnectionAgent(socket);
 
 
