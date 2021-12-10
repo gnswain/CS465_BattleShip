@@ -63,6 +63,7 @@ public class BattleServer implements MessageListener{
 
         this.game = new Game(gridSize);
         this.users = new ArrayList<>();
+        this.usernames = new ArrayList<>();
         this.current = -1;  //unsure what to initialize to
 
         try { 
@@ -101,9 +102,14 @@ System.out.println("Accepted a new socket");
 //System.out.println("Now serving client " + socket.getInetAddress() + "...");
                 agent = new ConnectionAgent(socket);
                 users.add(agent);
+                agent.addMessageListener(this);
 System.out.println("added agent " + agent + " to users ArrayList");
-                agent.run();  //start the ConnectionAgent's thread to process client commands.
-System.out.println("Calling ConnectionAgent's run()");
+//                 agent.run();  //start the ConnectionAgent's thread to process client commands.
+// System.out.println("Calling ConnectionAgent's run()");
+
+            Thread thread = new Thread(agent);
+            thread.start();
+
             }//end try
             catch (IOException ioe) {
                 System.err.println("\nIOException caught while attempting to accept a connection.");
@@ -152,6 +158,8 @@ System.out.println("Calling ConnectionAgent's run()");
             case "/display":
                 display(command, source);
                 break;
+            default:
+                sendMessage(source, "Invalid command: '" + message + "'");
         }//end switch
     } //end messageReceived
     
@@ -173,6 +181,8 @@ System.out.println("Calling ConnectionAgent's run()");
      * @param source Source sending command.
      */
     private void battle(String[] command, MessageSource source) {
+
+System.out.println("Entered battle()");
 
         if (command.length != 2) {
             sendMessage(source, "Usage: /battle <username>");
@@ -284,6 +294,7 @@ System.out.println("Calling ConnectionAgent's run()");
      * @param message Message being sent.
      */
     private void sendMessage(MessageSource source, String message) {
+System.out.println("Entered sendMessage()");
         for (ConnectionAgent player : users) {
             if (player.equals(source)) {
                 player.sendMessage(message);

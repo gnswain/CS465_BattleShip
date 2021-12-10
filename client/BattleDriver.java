@@ -36,7 +36,7 @@ public class BattleDriver {
     public static void main(String[] args) {
 
         if (args.length != 3) {
-            System.err.println("\nUsage: java BattleDriver <hostname> <port #> <username>");
+            System.err.println("\nUsage: java BattleDriver <hostname> <port #> <username>\n");
             System.exit(1);
         }//end if    
 
@@ -45,11 +45,11 @@ public class BattleDriver {
         final String USERNAME = args[2];
 
         try {
-            port = Integer.parseInt(args[2]);
+            port = Integer.parseInt(args[1]);
         }//end try
         catch (NumberFormatException nfe) {
-            System.err.println("The port provided is not a number.");
-            System.err.println(nfe.getMessage());
+            System.err.println("\nThe port provided is not a number.");
+            System.err.println(nfe.getMessage() + "\n");
             System.exit(1);
         }//end catch
 

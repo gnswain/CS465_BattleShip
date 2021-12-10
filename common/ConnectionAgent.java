@@ -43,10 +43,14 @@ public class ConnectionAgent extends MessageSource implements Runnable {
      */
     public ConnectionAgent(Socket socket) {
         
+        super();
         this.socket = socket;
-        this.in = new Scanner(System.in);
-        this.out = System.out;  //guessing this is correct
-        this.thread = new Thread(this);  //guessing
+        try {
+            this.in = new Scanner(socket.getInputStream());
+            this.out = new PrintStream(socket.getOutputStream());
+        } catch (IOException e) {
+            System.err.println(e.getMessage());
+        }
     }//end constructor
 
 
@@ -126,9 +130,11 @@ public class ConnectionAgent extends MessageSource implements Runnable {
      * @param message The message you want to send.
      */
     public void sendMessage(String message) {
+
+        this.out.println(message);
         
-        /* Notify all registered listeners. */
-        this.notifyReceipt(message); //notifyReceipt is in the messageSource class
+        // /* Notify all registered listeners. */
+        // this.notifyReceipt(message); //notifyReceipt is in the messageSource class
     }//end sendMessage
 
 
@@ -152,6 +158,9 @@ public class ConnectionAgent extends MessageSource implements Runnable {
         /* if the socket is not closed then close it. */
         try {
             this.socket.close();
+            this.in.close();
+            this.out.close();
+            this.closeMessageSource();
         }//end try
         catch (IOException ioe) {
             System.err.println("Unable to close the socket in ConnectionAgent.close()");
@@ -162,7 +171,7 @@ public class ConnectionAgent extends MessageSource implements Runnable {
 //        this.closeMessageSource();
 
 
-    }//end close
+    } //end close
 
 
     /**
@@ -172,9 +181,15 @@ public class ConnectionAgent extends MessageSource implements Runnable {
     @Override
     public void run() {
 System.out.println("Called ConnectionAgent's run()");
+        this.thread = Thread.currentThread();
+
+        while(!this.thread.isInterrupted()) {
+            if(this.in.hasNext()) {
+                notifyReceipt(this.in.nextLine());
+            }
+        }
 
 
 
-
-    }//end run 
-}//end class ConnectionAgent
+    } //end run 
+} //end class ConnectionAgent

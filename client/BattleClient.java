@@ -39,6 +39,8 @@ public class BattleClient extends MessageSource implements MessageListener {
     /** The username to interact with. */
     private String username;
 
+    /** Connect agent to communicate with server. */
+    private ConnectionAgent agent;
 
     /**
      * Initializes a new BattleClient.
@@ -75,7 +77,14 @@ System.out.println("called BattleClient.connect()");
             /* The clients Socket to connect with the Server. */
             Socket socket = new Socket(this.host, this.port);
 System.out.println("creating a connection agent in BattleClient.listen()");        
-            ConnectionAgent agent = new ConnectionAgent(socket);
+            this.agent = new ConnectionAgent(socket);
+            agent.addMessageListener(this);
+
+            // starts a thread for the new connection agent
+            Thread thread = new Thread(agent);
+            thread.start();
+
+            agent.sendMessage("/battle " + this.username);
         }//end try
         catch(IOException ioe) {
             System.err.println("\nIOException caught while creating a new socket");
@@ -93,8 +102,8 @@ System.out.println("creating a connection agent in BattleClient.listen()");
      */
     public void messageReceived(String message, MessageSource source) {
 
-
-    }//end messageReceived
+        notifyReceipt(message);
+    } // end messageReceived
 
 
     /**
@@ -105,9 +114,13 @@ System.out.println("creating a connection agent in BattleClient.listen()");
      */
     public void sourceClosed(MessageSource source) {
 
+        closeMessageSource();
+    } // end sourceClosed
 
-    }//end sourceClosed
+    public void send(String message) {
 
+        agent.sendMessage(message);
+    } // end send
 
     /**
      * Used for testing data input.
@@ -117,5 +130,5 @@ System.out.println("creating a connection agent in BattleClient.listen()");
     public static void main(String[] args) {
 
 
-    }//end main
-}//end class BattleClient
+    } // end main
+} // end class BattleClient
