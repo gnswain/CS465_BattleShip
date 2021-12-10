@@ -10,7 +10,7 @@ import java.net.Socket;
  * @author Graham Swain
  * @author Brandon Welch
  *
- * @version December 8, 2021
+ * @version December 10, 2021
  *
  * CS465-01, Computer Networks
  * Dr. Scott Barlowe
@@ -48,9 +48,10 @@ public class ConnectionAgent extends MessageSource implements Runnable {
         try {
             this.in = new Scanner(socket.getInputStream());
             this.out = new PrintStream(socket.getOutputStream());
-        } catch (IOException e) {
+        }//end try
+        catch (IOException e) {
             System.err.println(e.getMessage());
-        }
+        }//end catch
     }//end constructor
 
 
@@ -151,8 +152,7 @@ public class ConnectionAgent extends MessageSource implements Runnable {
 
 
     /**
-     * Close the socket connection.
-     *
+     * Closes the input Scanner, PrintStream, and the Socket connection.
      */
     public void close() {
 
@@ -165,31 +165,24 @@ public class ConnectionAgent extends MessageSource implements Runnable {
         }//end try
         catch (IOException ioe) {
             System.err.println("Unable to close the socket in ConnectionAgent.close()");
+            ioe.printStackTrace();
         }//end catch
-
-        
-        //Alternative:
-//        this.closeMessageSource();
-
-
-    } //end close
+    }//end close
 
 
     /**
-     * Assign work to a thread.
-     *
+     * Work to be performed by a thread.  Continually get commands from the user to perform in the 
+     * game.
      */
     @Override
     public void run() {
+
         this.thread = Thread.currentThread();
 
         while(!this.thread.isInterrupted()) {
             if(this.in.hasNext()) {
-                notifyReceipt(this.in.nextLine());
-            }
-        }
-
-
-
-    } //end run 
-} //end class ConnectionAgent
+                this.notifyReceipt(this.in.nextLine());
+            }//end if
+        }//end while
+    }//end run 
+}//end class ConnectionAgent

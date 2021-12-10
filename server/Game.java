@@ -7,8 +7,7 @@ import java.util.Hashtable;
  * @author Graham Swain
  * @author Brandon Welch
  *
- * @version December 5, 2021
- *
+ * @version December 10101010101010101010
  * CS465-01, Computer Networks
  * Dr. Scott Barlowe
  *
@@ -67,7 +66,7 @@ public class Game {
     public void addPlayer(String username) {
 
         this.players.put(username, new Grid(this.boardSize, username));
-        players.get(username).placeShips();
+        this.players.get(username).placeShips();
     }//end addPlayer
 
 
@@ -201,25 +200,32 @@ public class Game {
     }//end shoot
 
     /**
-     * Removes a user from the game;
-     * @param username User being removed.
+     * Removes a user from the game.
+     *
+     * @param username User to be removed from the game.
      */
     public void remove(String username) {
-        players.remove(username);
-    }
+
+        this.players.remove(username);
+    }//end remove
     
 
     /**
      * Gets an ArrayList of players in the game.
+     *
      * @return ArrayList of players currently in the game.
      */
     public ArrayList<String> getPlayers() {
+
         ArrayList<String> rtn = new ArrayList<>();
+
         for (String s : players.keySet()) {
             rtn.add(s);
-        }
+        }//end for
+
         return rtn;
-    }
+    }//end getPlayers
+
 
     /**
      * Checks to see if a player is currently in the game.
@@ -227,14 +233,16 @@ public class Game {
      * @return True if player is in the game.
      */
     public boolean isPlayerInGame(String username) {
+
         for (String u : players.keySet()) {
 System.out.println(u + " is in keys");
             if (u.equals(username)) {
                 return true;
-            }
-        }
+            }//end if
+        }//end for
         return false;
-    }
+    }//end isPlayerInGame
+
 
     /**
      * Used for testing data input.
@@ -244,5 +252,5 @@ System.out.println(u + " is in keys");
     public static void main(String[] args) {
 
 
-    } //end main
+    }//end main
 }//end class Game
