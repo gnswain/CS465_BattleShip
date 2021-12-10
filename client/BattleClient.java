@@ -5,6 +5,7 @@ import common.MessageSource;
 import common.ConnectionAgent;
 import java.io.IOException;
 import java.net.UnknownHostException;
+import java.util.Scanner;
 import java.net.Socket;
 import java.net.InetAddress;
 
@@ -58,11 +59,12 @@ public class BattleClient extends MessageSource implements MessageListener {
             System.err.println("\nThe hostname/server you are trying to reach is invalid.\n");
             System.err.println(uhe.getMessage());
             uhe.printStackTrace();
-        }//end catch
+        } // end catch
 
         this.port = port;
         this.username = username;
-    }//end constructor
+        addMessageListener(new PrintStreamMessageListener(System.out));
+    } // end constructor
 
 
     /**
@@ -72,7 +74,6 @@ public class BattleClient extends MessageSource implements MessageListener {
     protected void connect() {
 
 System.out.println("called BattleClient.connect()");
-
         try {
             /* The clients Socket to connect with the Server. */
             Socket socket = new Socket(this.host, this.port);
@@ -85,6 +86,14 @@ System.out.println("creating a connection agent in BattleClient.listen()");
             thread.start();
 
             agent.sendMessage("/battle " + this.username);
+
+            Scanner in = new Scanner(System.in);
+            String command;
+            while (agent.isConnected()) {
+                command = in.nextLine();
+System.out.println("Send message please");
+                send(command);
+            }
         }//end try
         catch(IOException ioe) {
             System.err.println("\nIOException caught while creating a new socket");

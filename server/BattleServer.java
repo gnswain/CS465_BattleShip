@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Hashtable;
 
 /**
  * @author Brandon Welch
@@ -41,6 +42,9 @@ public class BattleServer implements MessageListener{
     /** Stores ConnectionAgents for all connected users. */
     private ArrayList<ConnectionAgent> users;
 
+    /** Links users to a MessageSource */
+    private Hashtable<String, MessageSource> usersToSource;
+
 
     /**
      * Initializes a BattleServer to listen on the port provided. Uses default grid size.
@@ -63,6 +67,7 @@ public class BattleServer implements MessageListener{
 
         this.game = new Game(gridSize);
         this.users = new ArrayList<>();
+        this.usersToSource = new Hashtable<>();
         this.usernames = new ArrayList<>();
         this.current = -1;  //unsure what to initialize to
 
@@ -101,7 +106,6 @@ System.out.println("Entered try block");
 System.out.println("Accepted a new socket");
 //System.out.println("Now serving client " + socket.getInetAddress() + "...");
                 agent = new ConnectionAgent(socket);
-                users.add(agent);
                 agent.addMessageListener(this);
 System.out.println("added agent " + agent + " to users ArrayList");
 //                 agent.run();  //start the ConnectionAgent's thread to process client commands.
@@ -110,15 +114,17 @@ System.out.println("added agent " + agent + " to users ArrayList");
             Thread thread = new Thread(agent);
             thread.start();
 
+            users.add(agent);
+
             }//end try
             catch (IOException ioe) {
                 System.err.println("\nIOException caught while attempting to accept a connection.");
                 System.err.println();
                 ioe.printStackTrace();
                 System.exit(1);
-            }//end catch
-        }//end while
-    }//end listen
+            } // end catch
+        } // end while
+    } // end listen
 
 
     /**
@@ -130,7 +136,7 @@ System.out.println("added agent " + agent + " to users ArrayList");
         for (ConnectionAgent a : users) {
             a.sendMessage(message);
         }
-    } //end broadcast
+    } // end broadcast
 
 
     /**
@@ -141,7 +147,7 @@ System.out.println("added agent " + agent + " to users ArrayList");
      */
     public void messageReceived(String message, MessageSource source) {
         String[] command = message.split(" ");
-
+System.out.println("Message received: '" + message + "'");
         switch (command[0]) {                               // Assumes correct input. Case sensitive
             case "/battle":
                 battle(command, source);
@@ -160,8 +166,8 @@ System.out.println("added agent " + agent + " to users ArrayList");
                 break;
             default:
                 sendMessage(source, "Invalid command: '" + message + "'");
-        }//end switch
-    } //end messageReceived
+        } // end switch
+    } // end messageReceived
     
     /**
      * Used to notify observers that the subject will not receive new messages; observers can 
@@ -171,7 +177,7 @@ System.out.println("added agent " + agent + " to users ArrayList");
      */
     public void sourceClosed(MessageSource source) {
 
-
+        source.removeMessageListener(this);
     } //end sourceClosed
 
     /**
@@ -183,29 +189,48 @@ System.out.println("added agent " + agent + " to users ArrayList");
     private void battle(String[] command, MessageSource source) {
 
 System.out.println("Entered battle()");
-
         if (command.length != 2) {
-            sendMessage(source, "Usage: /battle <username>");
+            sendMessage(source, "Failed to join: usage: /battle <username>");
             return;
-        }//end if
+        } // end if
+        
+        if (usersToSource.containsValue(source)) {
+            sendMessage(source, "Failed to join: you are already in the game.");
+            return;
+        } // end if
         if (game.isStarted()) { // Can't join if game has started
-            sendMessage(source, "Game already in progress");
+            sendMessage(source, "Failed to join: game already in progress");
         } else {
             String username = command[1];
             for (String name : usernames) {
                 if (username.equals(name)) {
-                    sendMessage(source, "Username '" + username + "' already taken");
+                    sendMessage(source, "Failed to join: username '" + username + "' already taken");
                     return; // Checks to see if username is taken
-                }//end if
-            }//end for
+                } // end if
+            } // end for
 
             // Player joins successfully
             usernames.add(username);
+            usersToSource.put(username, source);
             broadcast("!!! " + username + " has entered battle");
-        }//end else
-    }//end battle
+        } // end else
+    } // end battle
 
-
+    /**
+     * Checks to see if a player has already joined the game.
+     *
+     * @param source Player being checked.
+     */
+    private boolean playerAlreadyJoined(MessageSource source) {
+        System.out.println("Entered sendMessage()");
+        for (MessageSource player : usersToSource.values()) {
+            if (player.equals(source)) {
+                return true;
+            } // end if
+        } // end for
+        return false;
+    } // end sendMessage
+    
     /**
      * Handles the /start command.
      *
