@@ -1,5 +1,6 @@
 package server;
 
+import java.util.ArrayList;
 import java.util.Hashtable;
 
 /**
@@ -208,74 +209,33 @@ public class Game {
     }
     
 
-    //TODO will likely end up removing turn(). Keeping it for reference for now.
     /**
-     * Adds a player to the game given their username.
-     * @param username Username of player being added.
+     * Gets an ArrayList of players in the game.
+     * @return ArrayList of players currently in the game.
      */
-    // public void addPlayers(String username) {
-    //     Grid player = new Grid(this.boardSize, username);
-    //     player.placeShips();
-    //     players.add(player);
-    // }
+    public ArrayList<String> getPlayers() {
+        ArrayList<String> rtn = new ArrayList<>();
+        for (String s : players.keySet()) {
+            rtn.add(s);
+        }
+        return rtn;
+    }
 
-    // /**
-    //  * Handles a players turn. A lot of this functionality will get moved for the networked version.
-    //  */
-    // public void turn() {
-    //     // easy way to reference the player whose turn it is
-    //     Grid current, other;
-    //     if (playerOneTurn) {
-    //         current = playerOne;
-    //         other = playerTwo;
-    //     } else {
-    //         current = playerTwo;
-    //         other = playerOne;
-    //     }
+    /**
+     * Checks to see if a player is currently in the game.
+     * @param username Username being searched for.
+     * @return True if player is in the game.
+     */
+    public boolean isPlayerInGame(String username) {
+        for (String u : players.keySet()) {
+System.out.println(u + " is in keys");
+            if (u.equals(username)) {
+                return true;
+            }
+        }
+        return false;
+    }
 
-    //     System.out.println("\n" + current.getUsername() + " it is your turn");
-
-    //     System.out.println("\n" + other.getUsername() + "'s Private board\n" + other.getFullGrid() 
-    //     + "\n");
-
-    //     System.out.println("\n" + other.getUsername() + "'s Public board\n" + other.getPublicGrid() 
-    //     + "\n");
-        
-    //     boolean valid = false;
-    //     while (!valid) {
-    //         try {
-    //             int row, col;
-    //             System.out.print("Please select a row > ");
-    //             row = Integer.parseInt(in.nextLine().strip());
-    //             System.out.print("Please select a column > ");
-    //             col = Integer.parseInt(in.nextLine().strip());
-
-    //             valid = other.isValidShot(row, col);
-                
-    //             if (valid) {
-    //                 boolean hit = other.shot(row, col);
-    //                 System.out.println("\nShots fired at " + other.getUsername() + " by " 
-    //                                     + current.getUsername());
-    //                 if (hit) {
-    //                     if (!other.shipsLeft()) {
-    //                         System.out.println("GAME OVER: " + current.getUsername() + " wins!");
-    //                         gameOver = true;
-    //                         return; // checks win condition, only needs to check if hits that turn
-    //                     }
-    //                 }
-
-    //                 // Switches whose turn it is
-    //                 playerOneTurn = !playerOneTurn;
-    //             } else {
-    //                 System.out.println("Invalid shot for " + current.getUsername() +
-    //                 " please try again.");
-    //             } // end if valid
-    //         } catch (NumberFormatException e) {
-    //             System.out.println("Rows and Columns must be integers.");
-    //         }
-    //     } // end while
-    // } // end turn
-    
     /**
      * Used for testing data input.
      *

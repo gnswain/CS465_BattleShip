@@ -34,7 +34,7 @@ public class BattleServer implements MessageListener{
     private int current;
 
     /** List of usernames of players connected to the game. Used to track whose turn it is. */
-    private ArrayList<String> usernames;
+    private ArrayList<String> players;
 
     /** Game being played. */
     private Game game;
@@ -72,7 +72,7 @@ public class BattleServer implements MessageListener{
         this.game = new Game(gridSize);
         this.users = new ArrayList<>();
         this.usersToSource = new Hashtable<>();
-        this.usernames = new ArrayList<>();
+        this.players = new ArrayList<>();
         this.current = 0;  //unsure what to initialize to
 
         try { 
@@ -193,7 +193,7 @@ System.out.println("Message received: '" + message + "'" + " message[0]: '" + co
      * @param source the <code>MessageSource</code> that does not expect more messages.
      */
     public void sourceClosed(MessageSource source) {
-        removePlayer(source);
+
         source.removeMessageListener(this);
     } //end sourceClosed
 
@@ -217,7 +217,7 @@ System.out.println("Message received: '" + message + "'" + " message[0]: '" + co
             agent.sendMessage("Failed to join: game already in progress");
         } else {
             String username = command[1];
-            for (String name : usernames) {
+            for (String name : players) {
                 if (username.equals(name)) {
                     agent.sendMessage("Failed to join: username '" + username + "' already taken");
                     return; // Checks to see if username is taken
@@ -227,9 +227,9 @@ System.out.println("Message received: '" + message + "'" + " message[0]: '" + co
             // Player joins successfully
 System.out.println("Putting: " + username + " into the game");
             usersToSource.put(username, source);
-            usernames.add(username);
             broadcast("!!! " + username + " has entered battle");
         } // end else
+        players.add(command[1]);
     } // end battle
     
     /**
@@ -251,10 +251,12 @@ System.out.println("Putting: " + username + " into the game");
             this.game.startGame();
 
             // Adds all the connected users to the game
-            for (String username : usernames)
+            for (String username : players) {
                 game.addPlayer(username);
+System.out.println("Adding: " + username + " to game");
+            }
 
-            broadcast("The game begins\n" + usernames.get(current) + " it is your turn");
+            broadcast("The game begins\n" + game.getPlayers().get(current) + " it is your turn");
         } else if (!game.isStarted() && this.users.size() < 2) {
             // too few players to begin game
             agent.sendMessage("Failed to start: not enough players to play the game");
@@ -263,7 +265,6 @@ System.out.println("Putting: " + username + " into the game");
             agent.sendMessage("Failed to start: the game has already started");
         }//end elseif
     }//end start
-
 
     /**
      * Handles the /fire command. In row col format.
@@ -282,9 +283,12 @@ System.out.println("Putting: " + username + " into the game");
         } else if (!usersToSource.containsKey(command[3])) { // if target not in game
             agent.sendMessage("Failed to fire: user '" + command[3] + "' not found");
             return;
+        } else if (!game.isPlayerInGame(getUsername(source))) {
+            agent.sendMessage("Failed to fire: you are not in the game");
+            return;
         }
 
-        String curPlayer = usernames.get(current); // player whose turn it is
+        String curPlayer = game.getPlayers().get(current); // player whose turn it is
         
         if (!usersToSource.get(curPlayer).equals(source)) {// if it's not their turn
             agent.sendMessage("Move Failed, player turn: " + curPlayer);
@@ -316,24 +320,26 @@ System.out.println("Putting: " + username + " into the game");
                 agent.sendMessage("Shots fired at " + command[3] + " by " + curPlayer + ": " + 
                                    success);
                 
-System.out.println(game.getFullGrid(command[3]));
+
                 if (!game.shipsLeft(command[3])) {
-                    usernames.remove(command[3]);
                     game.remove(command[3]);
                     broadcast(command[3] + " has been eliminated");
 
-                    if (usernames.size() == 1) {
-                        for (String s : usernames) {
-                            System.out.println(s);
-                        }
+                    if (game.amountOfPlayers() == 1) {
                         broadcast("GAME OVER: " + curPlayer + " wins!");
                         game.gameOver();
+                        users.remove(agent);
+                        if (users.size() == 0) {
+                            System.exit(0);
+                        }
                     } else { 
                         nextTurn();
-                    }
-                }
-            }
-        }
+                    } // end little else
+                } else {
+                    nextTurn();
+                } // end check for ships left
+            } // end little else
+        } // end big else
     } // end fire
 
 
@@ -351,26 +357,37 @@ System.out.println(game.getFullGrid(command[3]));
             return;
         }//end if
 
+        broadcast("!!!" + getUsername(source) + " surrendered");
+        removePlayer(source);
+
     //NOTE: close the connection agents socket and remove them from the game. 
 
     }//end surrender
 
+    /**
+     * Removes a player from the game.
+     * @param source MessageSource of the player to be removed.
+     */
     private void removePlayer(MessageSource source) {
         ConnectionAgent agent = (ConnectionAgent) source;
         String username = getUsername(source);
 
         if (!username.equals("")) {
             // Remove the player from our various data structures
-            usernames.remove(username);
-            users.remove(agent);
+            players.remove(username);
             usersToSource.remove(username);
             game.remove(username);
+            users.remove(agent);
+            
+            if (users.size() == 0) {
+                System.exit(0);
+            }
 
             if (this.usersToSource.size() == 1 && game.isStarted()) {
                 broadcast("You are the only player remaing\nGAME OVER: " + 
-                          usersToSource.get(usernames.get(0)) + " wins!");
+                          usersToSource.get(players.get(0)) + " wins!");
                 game.gameOver();
-                usersToSource.remove(usernames.get(0));
+                game.remove(players.get(0));
             }
         }
     }
@@ -386,18 +403,35 @@ System.out.println(game.getFullGrid(command[3]));
         ConnectionAgent agent = (ConnectionAgent) source;
 
         if (command.length != 2) {
-            agent.sendMessage("Usage: /display <username>");
+            agent.sendMessage("Display failed: usage: /display <username>");
             return;
-        }//end if
-    }//end display
+        } // end if
+
+        if (!game.isStarted()) {
+            agent.sendMessage("Display failed: game has not started");
+            return;
+        }
+
+        if (!game.isPlayerInGame(command[1])) {
+            agent.sendMessage("Display failed: user '" + command[1] + "' does not exist");
+            return;
+        } // end if
+
+        // checks to see if they're trying to see their own board
+        if (usersToSource.get(command[1]).equals(source)) {
+            agent.sendMessage(game.getFullGrid(command[1]));
+        } else {
+            agent.sendMessage(game.getPublicGrid(command[1]));
+        } // end else
+    } // end display
 
     /**
      * Switches the current turn to the next player. Loops back to 0 if it is on the last player.
      */
     private void nextTurn() {
 
-        current = current >= this.usernames.size() - 1 ? 0 : ++current;
-        broadcast(usernames.get(current) + " it is your turn");
+        current = current >= game.amountOfPlayers() - 1 ? 0 : ++current;
+        broadcast(game.getPlayers().get(current) + " it is your turn");
     }//end nextTurn()
     
     private String getUsername(MessageSource source) {

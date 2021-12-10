@@ -92,6 +92,9 @@ public class BattleClient extends MessageSource implements MessageListener {
                 command = in.nextLine();
                 System.out.println();
                 send(command);
+                if (command.equals("/surrender")) {
+                    System.exit(0);
+                }
             }
             in.close();
         }//end try

@@ -146,7 +146,7 @@ public class ConnectionAgent extends MessageSource implements Runnable {
      */
     public boolean isConnected(){
 
-        return this.socket.isConnected();
+        return !this.socket.isClosed();
     }//end isConnected
 
 
