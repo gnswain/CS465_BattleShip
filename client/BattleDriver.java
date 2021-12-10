@@ -1,10 +1,5 @@
 package client;
 
-import java.io.IOException;
-import java.net.UnknownHostException;
-import java.net.ConnectException;
-import java.net.InetAddress;
-
 /**
  * @author Graham Swain
  * @author Brandon Welch
@@ -58,28 +53,5 @@ public class BattleDriver {
 
         client.connect();
         
-        //TODO: reads messages from the keyboards and sends them to the client 
-
-
-        //unused try and the catch statments will probably be moved to the BattleClient class.
-        try {
-
-        }//end try
-        catch (IllegalArgumentException iae) {
-            System.err.println("\nTry again using a valid port number between 0 and 65535.\n");
-            System.err.println(iae.getMessage());
-        }//end catch
-//        catch (ConnectException ce) {
-//            System.err.println("\nThe server is not listening or has refused the connection.\n");
-//            System.err.println(ce.getMessage());
-//        }//end catch
-//        catch (IOException ioe) {
-//            System.err.println("An IOException has been caught by driver.");
-//            System.err.println(ioe.getMessage());
-//        }//end catch
-        catch (Exception e) {
-            System.err.println("Exception caught by driver.");
-            System.err.println(e.getMessage());
-        }//end catch
     }//end main
 }//end class BattleDriver

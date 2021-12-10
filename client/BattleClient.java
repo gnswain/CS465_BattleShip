@@ -73,11 +73,10 @@ public class BattleClient extends MessageSource implements MessageListener {
      */
     protected void connect() {
 
-System.out.println("called BattleClient.connect()");
+        System.out.println();
         try {
             /* The clients Socket to connect with the Server. */
-            Socket socket = new Socket(this.host, this.port);
-System.out.println("creating a connection agent in BattleClient.listen()");        
+            Socket socket = new Socket(this.host, this.port);   
             this.agent = new ConnectionAgent(socket);
             agent.addMessageListener(this);
 
@@ -91,9 +90,10 @@ System.out.println("creating a connection agent in BattleClient.listen()");
             String command;
             while (agent.isConnected()) {
                 command = in.nextLine();
-System.out.println("Send message please");
+                System.out.println();
                 send(command);
             }
+            in.close();
         }//end try
         catch(IOException ioe) {
             System.err.println("\nIOException caught while creating a new socket");
@@ -111,7 +111,7 @@ System.out.println("Send message please");
      */
     public void messageReceived(String message, MessageSource source) {
 
-        notifyReceipt(message);
+        notifyReceipt(message + "\n");
     } // end messageReceived
 
 

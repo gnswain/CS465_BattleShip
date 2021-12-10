@@ -32,7 +32,7 @@ public class Game {
     private boolean startedGame;
 
     /** True if game is over */
-    private boolean gameOver;   // Don't know if we need this.
+    private boolean gameOver;
     
 
     /**
@@ -66,6 +66,7 @@ public class Game {
     public void addPlayer(String username) {
 
         this.players.put(username, new Grid(this.boardSize, username));
+        players.get(username).placeShips();
     }//end addPlayer
 
 
@@ -198,6 +199,14 @@ public class Game {
         return this.players.get(username).shot(row, col);
     }//end shoot
 
+    /**
+     * Removes a user from the game;
+     * @param username User being removed.
+     */
+    public void remove(String username) {
+        players.remove(username);
+    }
+    
 
     //TODO will likely end up removing turn(). Keeping it for reference for now.
     /**

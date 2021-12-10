@@ -132,6 +132,7 @@ public class ConnectionAgent extends MessageSource implements Runnable {
     public void sendMessage(String message) {
 
         this.out.println(message);
+        this.out.flush();
         
         // /* Notify all registered listeners. */
         // this.notifyReceipt(message); //notifyReceipt is in the messageSource class
@@ -180,7 +181,6 @@ public class ConnectionAgent extends MessageSource implements Runnable {
      */
     @Override
     public void run() {
-System.out.println("Called ConnectionAgent's run()");
         this.thread = Thread.currentThread();
 
         while(!this.thread.isInterrupted()) {

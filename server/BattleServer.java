@@ -42,8 +42,11 @@ public class BattleServer implements MessageListener{
     /** Stores ConnectionAgents for all connected users. */
     private ArrayList<ConnectionAgent> users;
 
-    /** Links users to a MessageSource */
+    /** Links users to a MessageSource. */
     private Hashtable<String, MessageSource> usersToSource;
+
+    /** Size of grids being used. */
+    private int gridSize;
 
 
     /**
@@ -65,11 +68,12 @@ public class BattleServer implements MessageListener{
      */
     public BattleServer(int port, int gridSize) {
 
+        this.gridSize = gridSize;
         this.game = new Game(gridSize);
         this.users = new ArrayList<>();
         this.usersToSource = new Hashtable<>();
         this.usernames = new ArrayList<>();
-        this.current = -1;  //unsure what to initialize to
+        this.current = 0;  //unsure what to initialize to
 
         try { 
             this.serverSocket = new ServerSocket(port);  //IllegalArgumentException
@@ -146,27 +150,40 @@ System.out.println("added agent " + agent + " to users ArrayList");
      * @param source The source from which this message originated (if needed).
      */
     public void messageReceived(String message, MessageSource source) {
-        String[] command = message.split(" ");
-System.out.println("Message received: '" + message + "'");
-        switch (command[0]) {                               // Assumes correct input. Case sensitive
-            case "/battle":
-                battle(command, source);
-                break;
-            case "/start":
-                start(command, source);
-                break;
-            case "/fire":
-                fire(command, source);
-                break;
-            case "/surrender":
-                surrender(command, source);
-                break;
-            case "/display":
-                display(command, source);
-                break;
-            default:
-                sendMessage(source, "Invalid command: '" + message + "'");
-        } // end switch
+        String[] command = message.strip().split(" ");
+System.out.println("Message received: '" + message + "'" + " message[0]: '" + command[0] + "'");
+        if (!game.isGameOver()) {
+            switch (command[0]) {   
+                case "/battle":
+                    battle(command, source);
+                    break;
+                case "/start":
+                    start(command, source);
+                    break;
+                case "/fire":
+                    fire(command, source);
+                    break;
+                case "/surrender":
+                    surrender(command, source);
+                    break;
+                case "/display":
+                    display(command, source);
+                    break;
+                case "":
+                    // ignore
+                    break;
+                default:
+                    ((ConnectionAgent) source).sendMessage("Invalid command: '" + message + "'");
+            } // end switch
+        } else if (command[0].equals("/battle")) {
+            game = new Game(gridSize);
+            battle(command, source); 
+        } else if (command[0].equals("/surrender")) {
+            surrender(command, source);
+        } else {
+            ((ConnectionAgent) source).sendMessage("Game is over, use /battle to start again or" +
+                                                    " /surrender to quit");
+        }
     } // end messageReceived
     
     /**
@@ -176,7 +193,7 @@ System.out.println("Message received: '" + message + "'");
      * @param source the <code>MessageSource</code> that does not expect more messages.
      */
     public void sourceClosed(MessageSource source) {
-
+        removePlayer(source);
         source.removeMessageListener(this);
     } //end sourceClosed
 
@@ -187,49 +204,33 @@ System.out.println("Message received: '" + message + "'");
      * @param source Source sending command.
      */
     private void battle(String[] command, MessageSource source) {
-
-System.out.println("Entered battle()");
         if (command.length != 2) {
-            sendMessage(source, "Failed to join: usage: /battle <username>");
+            //sendMessage(source, "Failed to join: usage: /battle <username>");
             return;
         } // end if
-        
+        ConnectionAgent agent = (ConnectionAgent) source;
         if (usersToSource.containsValue(source)) {
-            sendMessage(source, "Failed to join: you are already in the game.");
+            agent.sendMessage("Failed to join: you are already in the game.");
             return;
         } // end if
         if (game.isStarted()) { // Can't join if game has started
-            sendMessage(source, "Failed to join: game already in progress");
+            agent.sendMessage("Failed to join: game already in progress");
         } else {
             String username = command[1];
             for (String name : usernames) {
                 if (username.equals(name)) {
-                    sendMessage(source, "Failed to join: username '" + username + "' already taken");
+                    agent.sendMessage("Failed to join: username '" + username + "' already taken");
                     return; // Checks to see if username is taken
                 } // end if
             } // end for
 
             // Player joins successfully
-            usernames.add(username);
+System.out.println("Putting: " + username + " into the game");
             usersToSource.put(username, source);
+            usernames.add(username);
             broadcast("!!! " + username + " has entered battle");
         } // end else
     } // end battle
-
-    /**
-     * Checks to see if a player has already joined the game.
-     *
-     * @param source Player being checked.
-     */
-    private boolean playerAlreadyJoined(MessageSource source) {
-        System.out.println("Entered sendMessage()");
-        for (MessageSource player : usersToSource.values()) {
-            if (player.equals(source)) {
-                return true;
-            } // end if
-        } // end for
-        return false;
-    } // end sendMessage
     
     /**
      * Handles the /start command.
@@ -238,12 +239,13 @@ System.out.println("Entered battle()");
      * @param source Source sending command.
      */
     private void start(String[] command, MessageSource source) {
+        ConnectionAgent agent = (ConnectionAgent) source;
 
         if (command.length != 1) {
-            sendMessage(source, "Usage: /start");
+            agent.sendMessage("Failed to start: usage: /start");
             return;
         }
-        if (!game.isStarted() && users.size() >= 2) {
+        if (!game.isStarted() && usersToSource.size() >= 2) {
             // Game is successfully started
             this.current = 0;
             this.game.startGame();
@@ -252,31 +254,87 @@ System.out.println("Entered battle()");
             for (String username : usernames)
                 game.addPlayer(username);
 
-            broadcast("The game begins");
-            broadcast(usernames.get(current) + " it is your turn");
+            broadcast("The game begins\n" + usernames.get(current) + " it is your turn");
         } else if (!game.isStarted() && this.users.size() < 2) {
             // too few players to begin game
-            sendMessage(source, "Not enough players to play the game");
+            agent.sendMessage("Failed to start: not enough players to play the game");
         } else if (game.isStarted()) {
             // game already in progress
-            sendMessage(source, "The game has already started");
+            agent.sendMessage("Failed to start: the game has already started");
         }//end elseif
     }//end start
 
 
     /**
-     * Handles the /fire command.
+     * Handles the /fire command. In row col format.
      *
      * @param command /fire <[0-9]+> <[0-9]+> <username>
      * @param source Source sending command.
      */
     private void fire(String[] command, MessageSource source) {
-
+        ConnectionAgent agent = (ConnectionAgent) source;
         if (command.length != 4) {
-            sendMessage(source, "Usage: /fire <[0-9]+> <[0-9]+> <username>");
+            agent.sendMessage("Failed to fire: usage: /fire <[0-9]+> <[0-9]+> <username>");
             return;
-        }//end if
-    }//end fire
+        } else if (!game.isStarted()) { // make sure the game has started
+            agent.sendMessage("Failed to fire: game not in progress");
+            return;
+        } else if (!usersToSource.containsKey(command[3])) { // if target not in game
+            agent.sendMessage("Failed to fire: user '" + command[3] + "' not found");
+            return;
+        }
+
+        String curPlayer = usernames.get(current); // player whose turn it is
+        
+        if (!usersToSource.get(curPlayer).equals(source)) {// if it's not their turn
+            agent.sendMessage("Move Failed, player turn: " + curPlayer);
+        } else if (curPlayer.equals(command[3])) {
+            agent.sendMessage("Failed to fire: don't shoot yourself");
+        } else {
+            int row = -1; int col = -1; // -1 represents default/error value
+            try {
+                row = Integer.parseInt(command[1]);
+            } catch (NumberFormatException e) {
+                agent.sendMessage("Failed to fire: row must be an integer");
+                return;
+            } 
+            try {
+                col = Integer.parseInt(command[2]);
+            } catch (NumberFormatException e) {
+                agent.sendMessage("Failed to fire: col must be an integer");
+                return;
+            }
+            if (!game.isValidShot(row, col, command[3])) {
+                agent.sendMessage("Failed to fire: invalid shot");
+            } else {
+                boolean hit = game.shoot(row, col, command[3]);
+                String success = "";
+                if (hit) 
+                    success = "HIT";
+                else
+                    success = "MISS";
+                agent.sendMessage("Shots fired at " + command[3] + " by " + curPlayer + ": " + 
+                                   success);
+                
+System.out.println(game.getFullGrid(command[3]));
+                if (!game.shipsLeft(command[3])) {
+                    usernames.remove(command[3]);
+                    game.remove(command[3]);
+                    broadcast(command[3] + " has been eliminated");
+
+                    if (usernames.size() == 1) {
+                        for (String s : usernames) {
+                            System.out.println(s);
+                        }
+                        broadcast("GAME OVER: " + curPlayer + " wins!");
+                        game.gameOver();
+                    } else { 
+                        nextTurn();
+                    }
+                }
+            }
+        }
+    } // end fire
 
 
     /**
@@ -286,15 +344,36 @@ System.out.println("Entered battle()");
      * @param source Source sending command.
      */
     private void surrender(String[] command, MessageSource source) {
+        ConnectionAgent agent = (ConnectionAgent) source;
 
         if (command.length != 1) {
-            sendMessage(source, "Usage: /surrender");
+            agent.sendMessage("Usage: /surrender");
             return;
         }//end if
 
     //NOTE: close the connection agents socket and remove them from the game. 
 
     }//end surrender
+
+    private void removePlayer(MessageSource source) {
+        ConnectionAgent agent = (ConnectionAgent) source;
+        String username = getUsername(source);
+
+        if (!username.equals("")) {
+            // Remove the player from our various data structures
+            usernames.remove(username);
+            users.remove(agent);
+            usersToSource.remove(username);
+            game.remove(username);
+
+            if (this.usersToSource.size() == 1 && game.isStarted()) {
+                broadcast("You are the only player remaing\nGAME OVER: " + 
+                          usersToSource.get(usernames.get(0)) + " wins!");
+                game.gameOver();
+                usersToSource.remove(usernames.get(0));
+            }
+        }
+    }
 
 
     /**
@@ -304,30 +383,13 @@ System.out.println("Entered battle()");
      * @param source Source sending command.
      */
     private void display(String[] command, MessageSource source) {
+        ConnectionAgent agent = (ConnectionAgent) source;
 
         if (command.length != 2) {
-            sendMessage(source, "Usage: /display <username>");
+            agent.sendMessage("Usage: /display <username>");
             return;
         }//end if
     }//end display
-
-
-    /**
-     * Sends a message to a specific player.
-     *
-     * @param source Player to send message to.
-     * @param message Message being sent.
-     */
-    private void sendMessage(MessageSource source, String message) {
-System.out.println("Entered sendMessage()");
-        for (ConnectionAgent player : users) {
-            if (player.equals(source)) {
-                player.sendMessage(message);
-                return;
-            }//end if
-        }//end for
-    }//end sendMessage
-
 
     /**
      * Switches the current turn to the next player. Loops back to 0 if it is on the last player.
@@ -337,7 +399,14 @@ System.out.println("Entered sendMessage()");
         current = current >= this.usernames.size() - 1 ? 0 : ++current;
         broadcast(usernames.get(current) + " it is your turn");
     }//end nextTurn()
-
+    
+    private String getUsername(MessageSource source) {
+        for (java.util.Map.Entry<String, MessageSource> entry : usersToSource.entrySet()) {
+            if (source.equals(entry.getValue()))
+                return entry.getKey();
+        }
+        return "";
+    }
 
     /**
      * Used for testing data input.
