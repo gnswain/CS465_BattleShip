@@ -56,21 +56,6 @@ public class ConnectionAgent extends MessageSource implements Runnable {
 
 
     /**
-     * Displays the state of the ConnectionAgent.
-     */
-    @Override
-    public String toString() {
-
-        /* Building the return value. */
-        StringBuilder str = new StringBuilder();
-
-        str.append("Empty connectionAgent tostring");
-
-        return str.toString();
-    }//end toString 
-
-
-    /**
      * Sends a message to the PrintStream.
      *
      * @param message The message you want to send to the PrintStream.

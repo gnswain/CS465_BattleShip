@@ -343,7 +343,7 @@ public class BattleServer implements MessageListener{
                     this.broadcast(command[3] + " has been eliminated");
 
                     if (this.game.amountOfPlayers() == 1) {
-                        this.broadcast("GAME OVER: " + curPlayer + " wins!");
+                        this.broadcast("GAME OVER!");
                         this.game.gameOver();
                         this.users.remove(agent);
                         if (this.users.size() == 0) {
