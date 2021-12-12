@@ -307,6 +307,7 @@ public class Grid {
         return this.username;
     }//end getUsername
 
+
     /**
      * Gets the size of the board.
      *
@@ -324,6 +325,7 @@ public class Grid {
      * @param args Not used. 
      */
     public static void main(String[] args) {
+
         Grid grid = new Grid(8, "PlayerOne");
 
         grid.placeShips();

@@ -7,7 +7,7 @@ import java.util.Hashtable;
  * @author Graham Swain
  * @author Brandon Welch
  *
- * @version December 10, 2021
+ * @version December 11, 2021
  *
  * CS465-01, Computer Networks
  * Dr. Scott Barlowe
@@ -200,6 +200,7 @@ public class Game {
         return this.players.get(username).shot(row, col);
     }//end shoot
 
+
     /**
      * Removes a user from the game.
      *
@@ -230,7 +231,9 @@ public class Game {
 
     /**
      * Checks to see if a player is currently in the game.
+     *
      * @param username Username being searched for.
+     *
      * @return True if player is in the game.
      */
     public boolean isPlayerInGame(String username) {
