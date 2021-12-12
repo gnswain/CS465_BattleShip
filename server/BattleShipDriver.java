@@ -3,7 +3,7 @@ package server;
 /**
  * @author Graham Swain
  * @author Brandon Welch
- * @version December 5, 2021
+ * @version December 11, 2021
  *
  * CS465-01, Computer Networks
  * Dr. Scott Barlowe
@@ -47,7 +47,6 @@ public class BattleShipDriver {
                         throw new NumberFormatException();
                     }//end if
                     server = new BattleServer(port, gridSize);
-System.out.println("calling BattleServer(port, gridSize)");
                 }//end try
                 catch (NumberFormatException nfe) {
                     System.err.println("\nGrid size must be between " + Grid.MIN_SIZE + " and " +
@@ -56,7 +55,6 @@ System.out.println("calling BattleServer(port, gridSize)");
                 }//end catch
             } else {
                 server = new BattleServer(port);
-System.out.println("calling BattleServer(port)");
             }//end else
         } else {    
             System.err.println("\nUsage: java BattleServer <port #>\n\n   OR");
@@ -66,7 +64,6 @@ System.out.println("calling BattleServer(port)");
 
         try {
             //parse command line options
-System.out.println("calling BattleServer's listen()");
             server.listen();
         }//end try
         catch (NumberFormatException nfe) {

@@ -29,13 +29,18 @@ Supported Client Commands:
   - /display <username>
 
 Errors:
-  - After a game has finished and a winner is delcared the winner will need to use the /surrender 
-    command to exit the game.
+  - After a game has finished and a winner is delcared the final two players in the game will need 
+    to use the /surrender command to exit the game.
   - If a client terminates the game without using the /surrender command (ctl + C) the server is 
     unable to drop the client from the game.
   - If all clients terminate the game without using the /surrender command the server still assumes 
     all clients are connected and never ends the game.
-
+  - Two clients trying to connect to a server is allowed by the client program.  However, only the 
+    first client that attempted to join the game will actually join the game. The second client 
+    will need to exit the client program with the /surrender command.
+  - The server program terminates after hosting a single game of BattleShip.
 
 Notes:
-  - 
+  - Any user who connects to the server while the game is in progress will enter "spectator" mode 
+    and can watch the game in progress without affecting its outcome. The spectator can use the 
+    /display command to view players boards and /surrender to disconnect from the server.

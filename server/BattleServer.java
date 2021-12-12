@@ -102,15 +102,13 @@ public class BattleServer implements MessageListener{
         /* A ConnectionAgent representing the new client that has connected to the server. */
         ConnectionAgent agent = null;
 
-System.out.println("Entered listen()");
         while (!serverSocket.isClosed()) {
             try {
                 socket = serverSocket.accept();
-//System.out.println("Accepted a new socket");
-System.out.println("Now serving client " + socket.getInetAddress() + "...");
+                System.out.println("Now serving client " + socket.getInetAddress() + "...");
+
                 agent = new ConnectionAgent(socket);
                 agent.addMessageListener(this);
-System.out.println("added agent " + agent + " to users ArrayList");
 
                 /* Create and start a connectionAgent's Thread */
                 Thread thread = new Thread(agent);
@@ -150,7 +148,7 @@ System.out.println("added agent " + agent + " to users ArrayList");
     public void messageReceived(String message, MessageSource source) {
 
         String[] command = message.strip().split(" ");
-System.out.println("Message received: '" + message + "'" + " message[0]: '" + command[0] + "'");
+
         if (!game.isGameOver()) {
             switch (command[0]) {   
                 case "/battle":
@@ -232,7 +230,6 @@ System.out.println("Message received: '" + message + "'" + " message[0]: '" + co
             }//end for
 
             // Player joins successfully
-System.out.println("Putting: " + username + " into the game");
             this.usersToSource.put(username, source);
             this.broadcast("!!! " + username + " has entered battle");
         }//end else
@@ -267,7 +264,6 @@ System.out.println("Putting: " + username + " into the game");
             // Adds all the connected users to the game
             for (String username : players) {
                 this.game.addPlayer(username);
-System.out.println("Adding: " + username + " to game");
             }//end for
 
             this.broadcast("The game begins\n" + this.game.getPlayers().get(current) + 
@@ -410,7 +406,7 @@ System.out.println("Adding: " + username + " to game");
 
             if (this.usersToSource.size() == 1 && this.game.isStarted()) {
                 this.broadcast("You are the only player remaining\nGAME OVER: " + 
-                          this.usersToSource.get(players.get(0)) + " wins!");
+                          this.usersToSource.get(this.players.get(0)) + " wins!");
                 this.game.gameOver();
                 this.game.remove(players.get(0));
             }//end if

@@ -24,7 +24,7 @@ public class Game {
     public static final int DEFAULT_GRID = 10;
     
     /** Players in the game */
-    private Hashtable<String, Grid> players; // Hashtable makes more sense here. Will handle the queue in battle server
+    private Hashtable<String, Grid> players; // Will handle the queue in battle server
 
     /** Board size for the game */
     private int boardSize;
@@ -239,7 +239,6 @@ public class Game {
     public boolean isPlayerInGame(String username) {
 
         for (String u : players.keySet()) {
-System.out.println(u + " is in keys");
             if (u.equals(username)) {
                 return true;
             }//end if
