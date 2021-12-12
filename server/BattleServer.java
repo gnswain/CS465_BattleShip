@@ -8,6 +8,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Hashtable;
+import java.util.Random;
 
 /**
  * @author Graham Swain
@@ -252,9 +253,14 @@ System.out.println("Putting: " + username + " into the game");
             agent.sendMessage("Failed to start: usage: /start");
             return;
         }//end if
+
+        // Game is successfully started
         if (!game.isStarted() && usersToSource.size() >= 2) {
-            // Game is successfully started
-            this.current = 0;
+
+            //randomize which player will go first.
+            Random random = new Random();
+            this.current = random.nextInt(this.players.size());
+
             this.game.startGame();
 
             // Adds all the connected users to the game
@@ -264,13 +270,15 @@ System.out.println("Adding: " + username + " to game");
             }//end for
 
             broadcast("The game begins\n" + game.getPlayers().get(current) + " it is your turn.");
+
+        // too few players to begin game
         } else if (!game.isStarted() && this.users.size() < 2) {
-            // too few players to begin game
             agent.sendMessage("Failed to start: not enough players to play the game.");
+
+        // game already in progress
         } else if (game.isStarted()) {
-            // game already in progress
             agent.sendMessage("Failed to start: the game has already started.");
-        }//end elseif
+        }//end else if
     }//end start
 
 

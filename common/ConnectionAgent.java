@@ -10,7 +10,7 @@ import java.net.Socket;
  * @author Graham Swain
  * @author Brandon Welch
  *
- * @version December 10, 2021
+ * @version December 11, 2021
  *
  * CS465-01, Computer Networks
  * Dr. Scott Barlowe
@@ -152,7 +152,8 @@ public class ConnectionAgent extends MessageSource implements Runnable {
 
 
     /**
-     * Closes the input Scanner, PrintStream, and the Socket connection.
+     * Closes the input Scanner, PrintStream, Socket connection and remove the ConnectionAgent as
+     * a MessageSource.
      */
     public void close() {
 

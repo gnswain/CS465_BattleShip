@@ -7,7 +7,7 @@ import java.io.PrintStream;
 /**
  * @author Graham Swain
  * @author Brandon Welch
- * @version December 8, 2021
+ * @version December 11, 2021
  *
  * CS465-01, Computer Networks
  * Dr. Scott Barlowe
@@ -25,6 +25,7 @@ public class PrintStreamMessageListener implements MessageListener {
     /** The PrintStream to output messages to. */
     PrintStream out;
     
+
     /**
      * Initializes a new PrintStreamMessageListener with the specified PrintStream.
      *
@@ -43,8 +44,8 @@ public class PrintStreamMessageListener implements MessageListener {
      * @param source The source from which this message originated (if needed).
      */
     public void messageReceived(String message, MessageSource source) {
-        out.println(message);
 
+        this.out.println(message);
     }//end messageReceived
 
 
@@ -55,8 +56,8 @@ public class PrintStreamMessageListener implements MessageListener {
      * @param source The <code>MessageSource</code> that does not expect more messages. 
      */
     public void sourceClosed(MessageSource source) {
-        this.out.close();
 
+        this.out.close();
     }//end sourceClosed
 
 
@@ -66,6 +67,7 @@ public class PrintStreamMessageListener implements MessageListener {
      * @param args Not used. 
      */
     public static void main(String[] args) {
+
 
     }//end main
 }//end class PrintStreamMessageListener

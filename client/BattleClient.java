@@ -13,7 +13,7 @@ import java.net.InetAddress;
  * @author Graham Swain
  * @author Brandon Welch
  *
- * @version December 8, 2021
+ * @version December 11, 2021
  *
  * CS465-01, Computer Networks
  * Dr. Scott Barlowe
@@ -43,6 +43,7 @@ public class BattleClient extends MessageSource implements MessageListener {
     /** Connect agent to communicate with server. */
     private ConnectionAgent agent;
 
+
     /**
      * Initializes a new BattleClient.
      *
@@ -63,13 +64,13 @@ public class BattleClient extends MessageSource implements MessageListener {
 
         this.port = port;
         this.username = username;
-        addMessageListener(new PrintStreamMessageListener(System.out));
-    } // end constructor
+        this.addMessageListener(new PrintStreamMessageListener(System.out));
+    }//end constructor
 
 
     /**
-     * Used to connect to the server.
-     *
+     * Used to connect to the server. Once connected the user will need to enter game commands 
+     * from the standard standard input.
      */
     protected void connect() {
 
@@ -88,14 +89,17 @@ public class BattleClient extends MessageSource implements MessageListener {
 
             Scanner in = new Scanner(System.in);
             String command;
+
             while (agent.isConnected()) {
                 command = in.nextLine();
                 System.out.println();
                 send(command);
+
                 if (command.equals("/surrender")) {
                     System.exit(0);
-                }
-            }
+                }//end if
+            }//end while
+
             in.close();
         }//end try
         catch(IOException ioe) {
@@ -114,25 +118,32 @@ public class BattleClient extends MessageSource implements MessageListener {
      */
     public void messageReceived(String message, MessageSource source) {
 
-        notifyReceipt(message + "\n");
-    } // end messageReceived
+        this.notifyReceipt(message + "\n");
+    }//end messageReceived
 
 
     /**
-     * used to notify observers that the subject will not receive new messages;  observers can 
+     * Used to notify observers that the subject will not receive new messages;  observers can 
      * deregister themselves.
      *
      * @param source The <code>MessageSource</code> that does not expect more messages. 
      */
     public void sourceClosed(MessageSource source) {
 
-        closeMessageSource();
-    } // end sourceClosed
+        this.closeMessageSource();
+    }//end sourceClosed
 
+
+    /**
+     * Used to send a message to other listeners.
+     *
+     * @param message The message you wish to send to other listeners.
+     */
     public void send(String message) {
 
-        agent.sendMessage(message);
-    } // end send
+        this.agent.sendMessage(message);
+    }//end send
+
 
     /**
      * Used for testing data input.
@@ -142,5 +153,5 @@ public class BattleClient extends MessageSource implements MessageListener {
     public static void main(String[] args) {
 
 
-    } // end main
-} // end class BattleClient
+    }//end main
+}//end class BattleClient

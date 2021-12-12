@@ -4,7 +4,7 @@ package client;
  * @author Graham Swain
  * @author Brandon Welch
  *
- * @version December 8, 2021
+ * @version December 11, 2021
  *
  * CS465-01, Computer Networks
  * Dr. Scott Barlowe
@@ -52,6 +52,5 @@ public class BattleDriver {
         BattleClient client = new BattleClient(HOSTNAME, port, USERNAME);
 
         client.connect();
-        
     }//end main
 }//end class BattleDriver
