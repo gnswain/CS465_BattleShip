@@ -56,61 +56,6 @@ public class ConnectionAgent extends MessageSource implements Runnable {
 
 
     /**
-     * Get the Socket to communicate with clients.
-     *
-     * @return A socket to communicate with clients.
-     */
-    public Socket getSocket() {
-
-        return this.socket;
-    }//end getSocket
-
-
-    /**
-     * Get an input scanner.
-     *
-     * @return An input scanner.
-     */
-    public Scanner getScanner() {
-
-        return this.in;
-    }//end getScanner
-
-
-    /**
-     * Get the PrintStream to notify Observers of changes.
-     *
-     * @return A PrintStream that will notify Observer's.
-     */
-    public PrintStream getPrintStream() {
-
-        return this.out;
-    }//end getPrintStream
-
-
-    /**
-     * Get the Thread.
-     *
-     * @return A thread.
-     */
-    public Thread getThread() {
-
-        return this.thread;
-    }//end getThread
-
-
-    /**
-     * Assign a new thread.
-     *
-     * @param thread New thread to be assigned.
-     */
-    public void setThread(Thread thread) {
-
-        this.thread = thread;
-    }//end setThread
-
-
-    /**
      * Displays the state of the ConnectionAgent.
      */
     @Override
@@ -126,24 +71,21 @@ public class ConnectionAgent extends MessageSource implements Runnable {
 
 
     /**
-     * Sends a message.
+     * Sends a message to the PrintStream.
      *
-     * @param message The message you want to send.
+     * @param message The message you want to send to the PrintStream.
      */
     public void sendMessage(String message) {
 
         this.out.println(message);
         this.out.flush();
-        
-        // /* Notify all registered listeners. */
-        // this.notifyReceipt(message); //notifyReceipt is in the messageSource class
     }//end sendMessage
 
 
     /**
      * Determines if the client is connected to the server.
      *
-     * true If the client has an open connection to the server.
+     * @return true If the client has an open connection to the server.
      */
     public boolean isConnected(){
 
